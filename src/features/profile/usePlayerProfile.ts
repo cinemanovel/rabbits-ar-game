@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { getPlayerProfile, savePlayerProfile } from '@/services/profileService';
+import { getPlayerProfile, resetPlayerOnboarding, savePlayerProfile } from '@/services/profileService';
 import type { PlayerProfile, PlayerProfileDraft } from '@/features/profile/types';
 
 type ProfileState = {
@@ -9,6 +9,7 @@ type ProfileState = {
   isSaving: boolean;
   error: string | null;
   refresh: () => Promise<void>;
+  resetOnboarding: () => Promise<boolean>;
   save: (draft: PlayerProfileDraft) => Promise<boolean>;
 };
 
@@ -65,6 +66,28 @@ export function usePlayerProfile(userId: string | undefined): ProfileState {
     [userId],
   );
 
+  const resetOnboarding = useCallback(async () => {
+    if (!userId) {
+      setError('Sign in before resetting onboarding.');
+      return false;
+    }
+
+    setIsSaving(true);
+    setError(null);
+
+    const result = await resetPlayerOnboarding(userId);
+
+    setIsSaving(false);
+
+    if (result.error) {
+      setError(result.error);
+      return false;
+    }
+
+    setProfile(result.data);
+    return true;
+  }, [userId]);
+
   useEffect(() => {
     refresh();
   }, [refresh]);
@@ -75,6 +98,7 @@ export function usePlayerProfile(userId: string | undefined): ProfileState {
     isSaving,
     error,
     refresh,
+    resetOnboarding,
     save,
   };
 }

@@ -81,3 +81,18 @@ export async function savePlayerProfile(
 
   return { data, error: null };
 }
+
+export async function resetPlayerOnboarding(userId: string): Promise<ProfileResult<PlayerProfile>> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ onboarding_completed: false })
+    .eq('id', userId)
+    .select('*')
+    .single();
+
+  if (error) {
+    return { data: null, error: formatProfileError(error.message) };
+  }
+
+  return { data, error: null };
+}
