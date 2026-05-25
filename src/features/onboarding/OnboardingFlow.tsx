@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Animated,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -15,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { usePlayerProfile } from '@/features/profile/usePlayerProfile';
-import { colors, radii, spacing, typography } from '@/theme';
+import { colors, motion, radii, spacing, typography } from '@/theme';
 
 type OnboardingStep = 'intro' | 'signal' | 'threshold' | 'handle' | 'profile' | 'final';
 
@@ -46,9 +47,19 @@ export function OnboardingFlow(props: OnboardingFlowProps) {
   const [handle, setHandle] = useState('');
   const [bio, setBio] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
+  const reveal = useMemo(() => new Animated.Value(1), []);
 
   const step = steps[stepIndex];
   const progress = `${stepIndex + 1} / ${steps.length}`;
+
+  useEffect(() => {
+    reveal.setValue(0);
+    Animated.timing(reveal, {
+      toValue: 1,
+      duration: motion.measured,
+      useNativeDriver: true,
+    }).start();
+  }, [reveal, stepIndex]);
 
   useEffect(() => {
     if (!user) {
@@ -113,7 +124,23 @@ export function OnboardingFlow(props: OnboardingFlowProps) {
       progress={progress}
       description={copyByStep[step].description}
     >
-      {step === 'intro' ? (
+      <Animated.View
+        style={[
+          styles.stepReveal,
+          {
+            opacity: reveal,
+            transform: [
+              {
+                translateY: reveal.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [8, 0],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
+        {step === 'intro' ? (
         <View style={styles.stack}>
           <Text style={styles.bodyText}>
             The app is quiet because the investigation has not started yet. That is intentional.
@@ -121,9 +148,9 @@ export function OnboardingFlow(props: OnboardingFlowProps) {
           <Text style={styles.faintText}>No game state. No location. No community feed. Just the first mark.</Text>
           <PrimaryButton label="Begin" onPress={goNext} />
         </View>
-      ) : null}
+        ) : null}
 
-      {step === 'signal' ? (
+        {step === 'signal' ? (
         <View style={styles.stack}>
           <View style={styles.signalCard}>
             <Text style={styles.cardLabel}>Unresolved signal</Text>
@@ -132,18 +159,18 @@ export function OnboardingFlow(props: OnboardingFlowProps) {
           <PrimaryButton label="Continue" onPress={goNext} />
           <PrimaryButton label="Back" onPress={goBack} variant="quiet" />
         </View>
-      ) : null}
+        ) : null}
 
-      {step === 'threshold' ? (
+        {step === 'threshold' ? (
         <View style={styles.stack}>
           <Text style={styles.bodyText}>You are not joining a feed. You are opening a file.</Text>
           <Text style={styles.faintText}>The profile below is private foundation only. Public systems are deferred.</Text>
           <PrimaryButton label="Set identity" onPress={goNext} />
           <PrimaryButton label="Back" onPress={goBack} variant="quiet" />
         </View>
-      ) : null}
+        ) : null}
 
-      {step === 'handle' ? (
+        {step === 'handle' ? (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <View style={styles.stack}>
             <View style={styles.avatarRow}>
@@ -169,9 +196,9 @@ export function OnboardingFlow(props: OnboardingFlowProps) {
             <PrimaryButton label="Back" onPress={goBack} variant="quiet" />
           </View>
         </KeyboardAvoidingView>
-      ) : null}
+        ) : null}
 
-      {step === 'profile' ? (
+        {step === 'profile' ? (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <View style={styles.stack}>
             <Field
@@ -188,9 +215,9 @@ export function OnboardingFlow(props: OnboardingFlowProps) {
             <PrimaryButton label="Back" onPress={goBack} variant="quiet" />
           </View>
         </KeyboardAvoidingView>
-      ) : null}
+        ) : null}
 
-      {step === 'final' ? (
+        {step === 'final' ? (
         <View style={styles.stack}>
           <View style={styles.signalCard}>
             <Text style={styles.cardLabel}>Identity prepared</Text>
@@ -207,7 +234,8 @@ export function OnboardingFlow(props: OnboardingFlowProps) {
           />
           <PrimaryButton disabled={isSaving} label="Back" onPress={goBack} variant="quiet" />
         </View>
-      ) : null}
+        ) : null}
+      </Animated.View>
     </OnboardingFrame>
   );
 }
@@ -235,6 +263,7 @@ function Field({
         {...inputProps}
         multiline={multiline}
         placeholderTextColor={colors.textFaint}
+        selectionColor={colors.signal}
         style={[styles.input, multiline ? styles.bioInput : null]}
       />
       {helper ? <Text style={styles.helper}>{helper}</Text> : null}
@@ -259,6 +288,7 @@ function OnboardingFrame({
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.backdrop} pointerEvents="none">
         <View style={styles.glow} />
+        <View style={styles.lowGlow} />
         <View style={styles.signalLine} />
       </View>
       <ScrollView contentContainerStyle={styles.container}>
@@ -328,7 +358,17 @@ const styles = StyleSheet.create({
     height: 300,
     borderRadius: 150,
     backgroundColor: colors.accentMuted,
-    opacity: 0.16,
+    opacity: 0.13,
+  },
+  lowGlow: {
+    position: 'absolute',
+    bottom: -180,
+    left: -160,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    backgroundColor: colors.signalMuted,
+    opacity: 0.07,
   },
   signalLine: {
     position: 'absolute',
@@ -337,17 +377,18 @@ const styles = StyleSheet.create({
     top: '38%',
     height: 1,
     backgroundColor: colors.borderSoft,
+    opacity: 0.68,
   },
   container: {
     flexGrow: 1,
     justifyContent: 'space-between',
     gap: spacing.xl,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xxxl,
+    paddingTop: spacing.xxl,
     paddingBottom: spacing.xl,
   },
   header: {
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   eyebrowRow: {
     flexDirection: 'row',
@@ -357,14 +398,14 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     color: colors.signal,
-    fontSize: typography.caption,
+    fontSize: typography.micro,
     fontWeight: '700',
-    letterSpacing: 2.4,
+    letterSpacing: 2.6,
     textTransform: 'uppercase',
   },
   progress: {
     color: colors.textFaint,
-    fontSize: typography.caption,
+    fontSize: typography.micro,
     fontWeight: '700',
     letterSpacing: 1.6,
   },
@@ -372,13 +413,13 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.title,
     fontWeight: '800',
-    letterSpacing: -1,
-    lineHeight: 39,
+    letterSpacing: -1.2,
+    lineHeight: 38,
   },
   description: {
     color: colors.textMuted,
-    fontSize: typography.bodyLarge,
-    lineHeight: 28,
+    fontSize: typography.body,
+    lineHeight: 26,
     maxWidth: 340,
   },
   panel: {
@@ -389,6 +430,11 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     backgroundColor: colors.surfaceRaised,
     padding: spacing.lg,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.22,
+    shadowRadius: 28,
+    elevation: 7,
   },
   panelAccent: {
     position: 'absolute',
@@ -399,39 +445,43 @@ const styles = StyleSheet.create({
     backgroundColor: colors.signal,
     opacity: 0.34,
   },
+  stepReveal: {
+    minHeight: 1,
+  },
   stack: {
-    gap: spacing.md,
+    gap: spacing.lg,
   },
   bodyText: {
     color: colors.text,
     fontSize: typography.body,
-    lineHeight: 25,
+    lineHeight: 26,
   },
   faintText: {
     color: colors.textMuted,
     fontSize: typography.small,
-    lineHeight: 21,
+    lineHeight: 22,
   },
   signalCard: {
-    gap: spacing.sm,
+    gap: spacing.md,
     borderWidth: 1,
     borderColor: colors.borderSoft,
     borderRadius: radii.md,
-    backgroundColor: colors.surface,
-    padding: spacing.md,
+    backgroundColor: colors.veil,
+    padding: spacing.lg,
   },
   cardLabel: {
     color: colors.signal,
-    fontSize: typography.caption,
+    fontSize: typography.micro,
     fontWeight: '700',
-    letterSpacing: 1.8,
+    letterSpacing: 2,
     textTransform: 'uppercase',
   },
   cardText: {
     color: colors.text,
     fontSize: typography.subtitle,
     fontWeight: '700',
-    lineHeight: 29,
+    letterSpacing: -0.4,
+    lineHeight: 30,
   },
   avatarRow: {
     flexDirection: 'row',
@@ -455,7 +505,7 @@ const styles = StyleSheet.create({
   },
   avatarCopy: {
     flex: 1,
-    gap: spacing.xs,
+    gap: spacing.sm,
   },
   field: {
     gap: spacing.xs,
@@ -472,7 +522,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radii.md,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.veil,
     color: colors.text,
     fontSize: typography.body,
     paddingHorizontal: spacing.md,
@@ -485,7 +535,7 @@ const styles = StyleSheet.create({
   helper: {
     color: colors.textFaint,
     fontSize: typography.small,
-    lineHeight: 20,
+    lineHeight: 21,
   },
   errorText: {
     color: colors.signal,

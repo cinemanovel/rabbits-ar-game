@@ -2,9 +2,11 @@ export const colors = {
   background: '#050608',
   backgroundInk: '#020304',
   backgroundSoft: '#0B0D10',
+  veil: '#07090D',
   surface: '#101318',
   surfaceRaised: '#171B22',
   surfaceMuted: '#1C2028',
+  surfaceGlow: '#202834',
   border: '#29303A',
   borderSoft: '#1B2028',
   text: '#F4F0E8',
@@ -36,6 +38,7 @@ export const radii = {
 } as const;
 
 export const typography = {
+  micro: 10,
   caption: 11,
   eyebrow: 12,
   small: 14,
@@ -49,5 +52,6 @@ export const typography = {
 export const motion = {
   quick: 140,
   measured: 280,
-  atmospheric: 620,
+  atmospheric: 560,
+  slow: 900,
 } as const;

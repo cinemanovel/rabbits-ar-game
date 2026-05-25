@@ -47,19 +47,19 @@ export default function TabsLayout() {
         tabBarLabelStyle: {
           fontSize: typography.caption,
           fontWeight: '700',
-          letterSpacing: 1.3,
+          letterSpacing: 1.5,
           textTransform: 'uppercase',
         },
         tabBarStyle: {
-          height: 82,
-          paddingTop: 12,
-          paddingBottom: 20,
+          height: 84,
+          paddingTop: 14,
+          paddingBottom: 22,
           borderTopWidth: 1,
           borderTopColor: colors.borderSoft,
-          backgroundColor: colors.backgroundSoft,
+          backgroundColor: colors.veil,
         },
         tabBarItemStyle: {
-          paddingVertical: 6,
+          paddingVertical: 7,
         },
       }}
     >

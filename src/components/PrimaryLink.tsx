@@ -26,13 +26,13 @@ export function PrimaryLink({ href, label, variant = 'primary', style }: Primary
   const animatedStyle = {
     opacity: pressValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [1, 0.78],
+      outputRange: [1, 0.82],
     }),
     transform: [
       {
         scale: pressValue.interpolate({
           inputRange: [0, 1],
-          outputRange: [1, 0.985],
+          outputRange: [1, 0.972],
         }),
       },
     ],
@@ -57,7 +57,7 @@ export function PrimaryLink({ href, label, variant = 'primary', style }: Primary
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 56,
+    minHeight: 58,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radii.pill,
@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.text,
     shadowColor: colors.signal,
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.16,
-    shadowRadius: 18,
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
     elevation: 4,
   },
   quiet: {
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: typography.small,
     fontWeight: '700',
-    letterSpacing: 1.1,
+    letterSpacing: 1.3,
     textTransform: 'uppercase',
   },
   primaryLabel: {

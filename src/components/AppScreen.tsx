@@ -37,6 +37,7 @@ export function AppScreen({ eyebrow, title, description, children }: AppScreenPr
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.backdrop} pointerEvents="none">
         <View style={styles.glow} />
+        <View style={styles.lowGlow} />
         <View style={styles.signalLine} />
       </View>
 
@@ -78,7 +79,17 @@ const styles = StyleSheet.create({
     height: 280,
     borderRadius: 140,
     backgroundColor: colors.accentMuted,
-    opacity: 0.18,
+    opacity: 0.14,
+  },
+  lowGlow: {
+    position: 'absolute',
+    bottom: -170,
+    left: -160,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    backgroundColor: colors.signalMuted,
+    opacity: 0.08,
   },
   signalLine: {
     position: 'absolute',
@@ -87,7 +98,7 @@ const styles = StyleSheet.create({
     top: '42%',
     height: 1,
     backgroundColor: colors.borderSoft,
-    opacity: 0.7,
+    opacity: 0.58,
   },
   container: {
     flex: 1,
@@ -97,21 +108,21 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
   },
   header: {
-    gap: spacing.md,
+    gap: spacing.sm,
     maxWidth: 380,
   },
   eyebrow: {
     color: colors.signal,
     fontSize: typography.eyebrow,
     fontWeight: '700',
-    letterSpacing: 2.8,
+    letterSpacing: 3,
     textTransform: 'uppercase',
   },
   title: {
     color: colors.text,
     fontSize: typography.display,
     fontWeight: '800',
-    letterSpacing: -1.8,
+    letterSpacing: -2,
     lineHeight: 54,
   },
   description: {
@@ -122,7 +133,7 @@ const styles = StyleSheet.create({
   },
   panel: {
     position: 'relative',
-    gap: spacing.md,
+    gap: spacing.lg,
     padding: spacing.lg,
     overflow: 'hidden',
     borderWidth: 1,
@@ -131,8 +142,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceRaised,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.28,
-    shadowRadius: 28,
+    shadowOpacity: 0.24,
+    shadowRadius: 30,
     elevation: 8,
   },
   panelAccent: {
