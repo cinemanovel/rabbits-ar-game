@@ -27,6 +27,38 @@ These are expected concepts, not a migration request:
 - `moderation_actions`: audit trail for moderator decisions.
 - `entitlements`: paid access state, eventually synced from RevenueCat.
 
+## Approved Phase 0 Tables
+
+### `profiles`
+
+Purpose: stores the current signed-in player's basic identity settings. This is not a social profile system and does not expose public browsing, following, messaging, community posting, or gameplay state.
+
+Fields:
+
+- `id`: UUID primary key, references `auth.users(id)` with `on delete cascade`.
+- `display_name`: required text, 1-48 characters.
+- `handle`: required text, 3-24 characters, lowercase letters/numbers/underscores only, unique case-insensitively.
+- `bio`: required text defaulting to an empty string, max 160 characters.
+- `avatar_placeholder`: required text defaulting to `signal`, max 32 characters. This is a placeholder token only, not an uploaded image.
+- `onboarding_completed`: required boolean defaulting to `false`.
+- `created_at`: required timestamp defaulting to `now()`.
+- `updated_at`: required timestamp defaulting to `now()` and maintained by trigger.
+
+Security:
+
+- Row-level security must be enabled.
+- Authenticated users may select, insert, update, and delete only their own row where `auth.uid() = id`.
+- No anonymous access.
+- No public profile listing or handle search policy yet.
+
+Deferred:
+
+- Profile images and storage buckets.
+- Public social profile pages.
+- Following, messaging, community posting, or social discovery.
+- Game progress, inventory, ranks, or achievements.
+- Moderation tables for user-generated profile content beyond owner-only access.
+
 ## Field Guidelines
 
 Most tables should include:
