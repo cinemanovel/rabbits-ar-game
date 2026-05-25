@@ -10,18 +10,21 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.textFaint,
         tabBarLabelStyle: {
-          fontSize: typography.eyebrow,
+          fontSize: typography.caption,
           fontWeight: '700',
-          letterSpacing: 0.8,
+          letterSpacing: 1.3,
           textTransform: 'uppercase',
         },
         tabBarStyle: {
-          height: 78,
-          paddingTop: 10,
-          paddingBottom: 18,
+          height: 82,
+          paddingTop: 12,
+          paddingBottom: 20,
           borderTopWidth: 1,
-          borderTopColor: colors.border,
+          borderTopColor: colors.borderSoft,
           backgroundColor: colors.backgroundSoft,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 6,
         },
       }}
     >

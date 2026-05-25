@@ -11,7 +11,8 @@ export default function SignUpScreen() {
       title="Create account"
       description="Account creation will arrive with the auth phase. No identity data is collected here."
     >
-      <Text style={styles.placeholder}>This placeholder does not store or submit anything.</Text>
+      <Text style={styles.kicker}>No data collected</Text>
+      <Text style={styles.placeholder}>This placeholder does not store, submit, or validate anything.</Text>
       <PrimaryLink href="/home" label="Continue to shell" />
       <PrimaryLink href="/" label="Back to welcome" variant="quiet" />
     </AppScreen>
@@ -19,6 +20,13 @@ export default function SignUpScreen() {
 }
 
 const styles = StyleSheet.create({
+  kicker: {
+    color: colors.signal,
+    fontSize: typography.caption,
+    fontWeight: '700',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
   placeholder: {
     marginBottom: spacing.sm,
     color: colors.textMuted,

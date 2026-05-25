@@ -1,24 +1,31 @@
 export const colors = {
   background: '#050608',
+  backgroundInk: '#020304',
   backgroundSoft: '#0B0D10',
-  surface: '#111419',
-  surfaceMuted: '#181C22',
-  border: '#252B33',
-  text: '#F3F0E8',
-  textMuted: '#A49D91',
-  textFaint: '#6F766F',
-  accent: '#A7C7C5',
+  surface: '#101318',
+  surfaceRaised: '#171B22',
+  surfaceMuted: '#1C2028',
+  border: '#29303A',
+  borderSoft: '#1B2028',
+  text: '#F4F0E8',
+  textMuted: '#B0A89B',
+  textFaint: '#727A73',
+  accent: '#9DBEBC',
+  accentMuted: '#405E61',
   signal: '#B9A77C',
+  signalMuted: '#615640',
   black: '#000000',
 } as const;
 
 export const spacing = {
+  xxs: 4,
   xs: 6,
   sm: 10,
   md: 16,
   lg: 24,
   xl: 36,
   xxl: 52,
+  xxxl: 72,
 } as const;
 
 export const radii = {
@@ -29,15 +36,18 @@ export const radii = {
 } as const;
 
 export const typography = {
+  caption: 11,
   eyebrow: 12,
+  small: 14,
   body: 16,
   bodyLarge: 18,
+  subtitle: 22,
   title: 34,
-  display: 48,
+  display: 50,
 } as const;
 
 export const motion = {
-  quick: 180,
-  measured: 320,
-  atmospheric: 700,
+  quick: 140,
+  measured: 280,
+  atmospheric: 620,
 } as const;

@@ -1,7 +1,8 @@
 import { Link, type Href } from 'expo-router';
-import { Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import { useRef } from 'react';
+import { Animated, Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
 
-import { colors, radii, spacing, typography } from '@/theme';
+import { colors, motion, radii, spacing, typography } from '@/theme';
 
 type PrimaryLinkProps = {
   href: Href;
@@ -12,20 +13,43 @@ type PrimaryLinkProps = {
 
 export function PrimaryLink({ href, label, variant = 'primary', style }: PrimaryLinkProps) {
   const isPrimary = variant === 'primary';
+  const pressValue = useRef(new Animated.Value(0)).current;
+
+  const setPressed = (pressed: boolean) => {
+    Animated.timing(pressValue, {
+      toValue: pressed ? 1 : 0,
+      duration: motion.quick,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const animatedStyle = {
+    opacity: pressValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1, 0.78],
+    }),
+    transform: [
+      {
+        scale: pressValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 0.985],
+        }),
+      },
+    ],
+  };
 
   return (
     <Link href={href} asChild>
       <Pressable
-        style={({ pressed }) => [
-          styles.base,
-          isPrimary ? styles.primary : styles.quiet,
-          pressed ? styles.pressed : null,
-          style,
-        ]}
+        onPressIn={() => setPressed(true)}
+        onPressOut={() => setPressed(false)}
+        style={style}
       >
-        <Text style={[styles.label, isPrimary ? styles.primaryLabel : styles.quietLabel]}>
-          {label}
-        </Text>
+        <Animated.View style={[styles.base, isPrimary ? styles.primary : styles.quiet, animatedStyle]}>
+          <Text style={[styles.label, isPrimary ? styles.primaryLabel : styles.quietLabel]}>
+            {label}
+          </Text>
+        </Animated.View>
       </Pressable>
     </Link>
   );
@@ -33,7 +57,7 @@ export function PrimaryLink({ href, label, variant = 'primary', style }: Primary
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 52,
+    minHeight: 56,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radii.pill,
@@ -41,19 +65,22 @@ const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: colors.text,
+    shadowColor: colors.signal,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.16,
+    shadowRadius: 18,
+    elevation: 4,
   },
   quiet: {
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.backgroundSoft,
-  },
-  pressed: {
-    opacity: 0.72,
+    backgroundColor: colors.surface,
   },
   label: {
-    fontSize: typography.body,
+    fontSize: typography.small,
     fontWeight: '700',
-    letterSpacing: 0.4,
+    letterSpacing: 1.1,
+    textTransform: 'uppercase',
   },
   primaryLabel: {
     color: colors.black,

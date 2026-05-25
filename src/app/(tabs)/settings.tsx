@@ -14,7 +14,10 @@ export default function SettingsTab() {
     >
       {settings.map((item) => (
         <View key={item} style={styles.item}>
-          <Text style={styles.itemText}>{item}</Text>
+          <View style={styles.itemCopy}>
+            <Text style={styles.itemText}>{item}</Text>
+            <Text style={styles.itemDetail}>Awaiting approved phase</Text>
+          </View>
           <Text style={styles.itemState}>Off</Text>
         </View>
       ))}
@@ -27,17 +30,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 48,
+    gap: spacing.md,
+    minHeight: 66,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.borderSoft,
+  },
+  itemCopy: {
+    flex: 1,
+    gap: spacing.xxs,
   },
   itemText: {
     color: colors.text,
     fontSize: typography.body,
   },
-  itemState: {
+  itemDetail: {
     color: colors.textFaint,
-    fontSize: typography.eyebrow,
+    fontSize: typography.small,
+  },
+  itemState: {
+    color: colors.signal,
+    fontSize: typography.caption,
     fontWeight: '700',
     letterSpacing: 1.2,
     textTransform: 'uppercase',
