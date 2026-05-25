@@ -1,1 +1,6 @@
 node_modules
+
+# Local environment values
+.env
+.env.local
+.env.*.local
