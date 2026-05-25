@@ -1,0 +1,33 @@
+---
+description: Core project constraints for the Rabbits ARG mobile app
+alwaysApply: true
+---
+
+# Project Rules
+
+This is a production Expo mobile app for a Rabbits-style ARG. Keep work stable, cinematic, premium, modernist, dark, and restrained.
+
+## Before Coding
+
+- Read `AGENTS.md` and the relevant `docs/` file.
+- Check Expo SDK 56 docs before changing Expo APIs.
+- Do not build features unless the user explicitly asks for implementation.
+
+## Hard Limits
+
+- Do not modify native iOS or Android code without explicit approval.
+- Do not install packages unless existing Expo/React Native/Supabase tools are insufficient and the reason is documented.
+- Do not add RevenueCat, deep AR, open community posting, live chat, private messaging, or background location before its approved phase.
+- Do not perform broad rewrites, folder reshuffles, or framework swaps without a documented reason.
+
+## Implementation Defaults
+
+- Use TypeScript and Expo Router patterns already in the repo.
+- Keep Supabase access behind typed service functions instead of scattering raw queries in screens.
+- Centralize theme values before building substantial UI.
+- Treat location, identity, purchases, community content, and moderation as safety-sensitive domains.
+- Prefer small, reviewable changes with clear verification notes.
+
+## Product Tone
+
+Mystery should feel deliberate, not random. UI should be restrained, dark, elegant, and readable. Copy can be atmospheric, but permissions, safety, purchases, and errors must stay plain and honest.
