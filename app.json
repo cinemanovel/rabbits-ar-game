@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Rabbits",
+    "slug": "rabbits-ar-game",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "rabbitsarg",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
