@@ -1,8 +1,25 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
+import { StyleSheet, Text } from 'react-native';
 
+import { AppScreen } from '@/components/AppScreen';
+import { useAuth } from '@/features/auth/AuthProvider';
 import { colors, typography } from '@/theme';
 
 export default function TabsLayout() {
+  const { isLoading, session } = useAuth();
+
+  if (isLoading) {
+    return (
+      <AppScreen eyebrow="Access" title="Checking session" description="Verifying local session state.">
+        <Text style={styles.loadingText}>Hold for signal.</Text>
+      </AppScreen>
+    );
+  }
+
+  if (!session) {
+    return <Redirect href="/sign-in" />;
+  }
+
   return (
     <Tabs
       screenOptions={{
@@ -34,3 +51,11 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingText: {
+    color: colors.textMuted,
+    fontSize: typography.body,
+    lineHeight: 24,
+  },
+});
