@@ -1,4 +1,5 @@
 import type { Session, User } from '@supabase/supabase-js';
+import * as Linking from 'expo-linking';
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
 
@@ -13,6 +14,7 @@ type AuthContextValue = {
   session: Session | null;
   user: User | null;
   isLoading: boolean;
+  completeAuthCallback: (url: string) => Promise<AuthResult>;
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signUp: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<AuthResult>;
@@ -26,6 +28,38 @@ function formatAuthError(message: string): string {
   }
 
   return message;
+}
+
+function getAuthCallbackParams(url: string) {
+  const parsed = Linking.parse(url);
+  const queryParams = parsed.queryParams ?? {};
+  const hashParams = new URLSearchParams(url.includes('#') ? url.split('#')[1] : '');
+
+  const readValue = (key: string) => {
+    const queryValue = queryParams[key];
+
+    if (typeof queryValue === 'string') {
+      return queryValue;
+    }
+
+    if (Array.isArray(queryValue) && typeof queryValue[0] === 'string') {
+      return queryValue[0];
+    }
+
+    return hashParams.get(key) ?? undefined;
+  };
+
+  return {
+    accessToken: readValue('access_token'),
+    code: readValue('code'),
+    errorCode: readValue('error_code') ?? readValue('error'),
+    errorDescription: readValue('error_description'),
+    refreshToken: readValue('refresh_token'),
+  };
+}
+
+export function getAuthCallbackUrl() {
+  return Linking.createURL('auth/callback');
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -74,6 +108,30 @@ export function AuthProvider({ children }: PropsWithChildren) {
       session,
       user: session?.user ?? null,
       isLoading,
+      completeAuthCallback: async (url) => {
+        const { accessToken, code, errorCode, errorDescription, refreshToken } = getAuthCallbackParams(url);
+
+        if (errorCode) {
+          return { error: formatAuthError(errorDescription ?? errorCode) };
+        }
+
+        if (code) {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+          return error ? { error: formatAuthError(error.message) } : { session: data.session };
+        }
+
+        if (accessToken && refreshToken) {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          return error ? { error: formatAuthError(error.message) } : { session: data.session };
+        }
+
+        return { error: 'No Supabase auth session was found in the callback URL.' };
+      },
       signIn: async (email, password) => {
         const { data, error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
@@ -86,6 +144,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
+          options: {
+            emailRedirectTo: getAuthCallbackUrl(),
+          },
         });
 
         return error ? { error: formatAuthError(error.message) } : { session: data.session };
