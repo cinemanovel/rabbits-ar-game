@@ -8,7 +8,6 @@ import { useAuth } from '@/features/auth/AuthProvider';
 import { usePlayerProfile } from '@/features/profile/usePlayerProfile';
 import { colors, spacing, typography } from '@/theme';
 
-const settings = ['Notifications deferred', 'Location deferred', 'Purchases deferred'];
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 export default function SettingsTab() {
@@ -70,16 +69,6 @@ export default function SettingsTab() {
         </Text>
       </View>
 
-      {settings.map((item) => (
-        <View key={item} style={styles.item}>
-          <View style={styles.itemCopy}>
-            <Text style={styles.itemText}>{item}</Text>
-            <Text style={styles.itemDetail}>Awaiting approved phase</Text>
-          </View>
-          <Text style={styles.itemState}>Off</Text>
-        </View>
-      ))}
-
       {isDevelopment ? (
         <View style={styles.testingCard}>
           <Text style={styles.sectionLabel}>Development testing</Text>
@@ -133,34 +122,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: typography.small,
     lineHeight: 21,
-  },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    minHeight: 66,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSoft,
-  },
-  itemCopy: {
-    flex: 1,
-    gap: spacing.xxs,
-  },
-  itemText: {
-    color: colors.text,
-    fontSize: typography.body,
-  },
-  itemDetail: {
-    color: colors.textFaint,
-    fontSize: typography.small,
-  },
-  itemState: {
-    color: colors.signal,
-    fontSize: typography.caption,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
   },
   testingCard: {
     gap: spacing.md,
