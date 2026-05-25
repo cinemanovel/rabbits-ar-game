@@ -3,12 +3,18 @@ import { StyleSheet, Text } from 'react-native';
 
 import { AppScreen } from '@/components/AppScreen';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { usePlayerProfile } from '@/features/profile/usePlayerProfile';
 import { colors, typography } from '@/theme';
 
 export default function TabsLayout() {
   const { isLoading, session } = useAuth();
+  const {
+    error: profileError,
+    isLoading: isProfileLoading,
+    profile,
+  } = usePlayerProfile(session?.user.id);
 
-  if (isLoading) {
+  if (isLoading || isProfileLoading) {
     return (
       <AppScreen eyebrow="Access" title="Checking session" description="Verifying local session state.">
         <Text style={styles.loadingText}>Hold for signal.</Text>
@@ -18,6 +24,18 @@ export default function TabsLayout() {
 
   if (!session) {
     return <Redirect href="/sign-in" />;
+  }
+
+  if (profileError) {
+    return (
+      <AppScreen eyebrow="Profile" title="Signal blocked" description="Profile state could not be verified.">
+        <Text style={styles.loadingText}>{profileError}</Text>
+      </AppScreen>
+    );
+  }
+
+  if (!profile || !profile.onboarding_completed) {
+    return <Redirect href="/onboarding" />;
   }
 
   return (
