@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } fro
 import { AppScreen } from '@/components/AppScreen';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { PrimaryLink } from '@/components/PrimaryLink';
-import { useAuth } from '@/features/auth/AuthProvider';
+import { getAuthCallbackUrl, useAuth } from '@/features/auth/AuthProvider';
 import { colors, spacing, typography } from '@/theme';
 
 export default function SignUpScreen() {
@@ -22,28 +22,86 @@ export default function SignUpScreen() {
   }
 
   const handleSignUp = async () => {
+    if (__DEV__) {
+      console.log('[auth:signup] button press', {
+        hasEmail: Boolean(email.trim()),
+        passwordLength: password.length,
+      });
+    }
+
     setError(null);
     setMessage(null);
+
+    if (!email.trim()) {
+      if (__DEV__) {
+        console.log('[auth:signup] validation failed: missing email');
+      }
+
+      setError('Enter an email address.');
+      return;
+    }
+
+    if (password.length < 6) {
+      if (__DEV__) {
+        console.log('[auth:signup] validation failed: password too short');
+      }
+
+      setError('Use at least 6 characters.');
+      return;
+    }
+
+    if (__DEV__) {
+      console.log('[auth:signup] validation passed');
+      console.log('[auth:signup] signUp invocation skipped for navigation audit');
+      console.log('[auth:signup] would use emailRedirectTo:', getAuthCallbackUrl());
+      console.log('[auth:signup] audit mode: skipping Supabase signUp call');
+      setMessage('Audit mode: Create Account press reached the sign-up handler.');
+      return;
+    }
+
     setIsSubmitting(true);
 
-    const result = await signUp(email, password);
+    try {
+      const result = await signUp(email, password);
 
-    setIsSubmitting(false);
+      setIsSubmitting(false);
 
-    if (result.error) {
-      setError(result.error);
-      return;
+      if (result.error) {
+        if (__DEV__) {
+          console.log('[auth:signup] provider returned error:', result.error);
+        }
+
+        setError(result.error);
+        return;
+      }
+
+      if (result.session) {
+        if (__DEV__) {
+          console.log('[auth:signup] provider returned session');
+        }
+
+        router.replace('/home');
+        return;
+      }
+
+      if (__DEV__) {
+        console.log('[auth:signup] provider returned no session; confirmation email expected');
+      }
+
+      setMessage('Account request sent. Confirm your email, then sign in.');
+    } catch (caughtError) {
+      const message = caughtError instanceof Error ? caughtError.message : 'Unexpected sign-up error.';
+
+      if (__DEV__) {
+        console.log('[auth:signup] exception:', message);
+      }
+
+      setIsSubmitting(false);
+      setError(message);
     }
-
-    if (result.session) {
-      router.replace('/home');
-      return;
-    }
-
-    setMessage('Account request sent. Confirm your email, then sign in.');
   };
 
-  const isDisabled = isAuthLoading || isSubmitting || !email.trim() || password.length < 6;
+  const isDisabled = isAuthLoading || isSubmitting;
 
   return (
     <AppScreen

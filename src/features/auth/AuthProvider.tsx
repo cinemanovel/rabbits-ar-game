@@ -141,10 +141,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return error ? { error: formatAuthError(error.message) } : { session: data.session };
       },
       signUp: async (email, password) => {
+        if (__DEV__) {
+          console.log('[auth:provider] signUp invoked', {
+            email: email.trim(),
+            passwordLength: password.length,
+          });
+        }
+
         const emailRedirectTo = getAuthCallbackUrl();
 
         if (__DEV__) {
-          console.info('[auth] Supabase signup emailRedirectTo:', emailRedirectTo);
+          console.log('[auth:provider] Supabase signup emailRedirectTo:', emailRedirectTo);
         }
 
         const { data, error } = await supabase.auth.signUp({
@@ -154,6 +161,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
             emailRedirectTo,
           },
         });
+
+        if (__DEV__) {
+          console.log('[auth:provider] Supabase signup response', {
+            error: error?.message ?? null,
+            hasSession: Boolean(data.session),
+            hasUser: Boolean(data.user),
+          });
+        }
 
         return error ? { error: formatAuthError(error.message) } : { session: data.session };
       },

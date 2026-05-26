@@ -1,7 +1,6 @@
-import { useRef } from 'react';
-import { Animated, Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
 
-import { colors, motion, radii, spacing, typography } from '@/theme';
+import { colors, radii, spacing, typography } from '@/theme';
 
 type PrimaryButtonProps = {
   label: string;
@@ -19,42 +18,38 @@ export function PrimaryButton({
   style,
 }: PrimaryButtonProps) {
   const isPrimary = variant === 'primary';
-  const pressValue = useRef(new Animated.Value(0)).current;
 
-  const setPressed = (pressed: boolean) => {
-    Animated.timing(pressValue, {
-      toValue: pressed ? 1 : 0,
-      duration: motion.quick,
-      useNativeDriver: true,
-    }).start();
+  const handlePress = () => {
+    if (__DEV__) {
+      console.log('[ui:button] onPress', { label, disabled });
+    }
+
+    if (disabled) {
+      return;
+    }
+
+    onPress();
   };
 
-  const animatedStyle = {
-    opacity: pressValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [disabled ? 0.46 : 1, disabled ? 0.46 : 0.82],
-    }),
-    transform: [
-      {
-        scale: pressValue.interpolate({
-          inputRange: [0, 1],
-          outputRange: [1, disabled ? 1 : 0.972],
-        }),
-      },
-    ],
+  const handlePressIn = () => {
+    if (__DEV__) {
+      console.log('[ui:button] onPressIn', { label, disabled });
+    }
   };
 
   return (
     <Pressable
-      disabled={disabled}
-      onPress={onPress}
-      onPressIn={() => setPressed(true)}
-      onPressOut={() => setPressed(false)}
-      style={style}
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      style={({ pressed }) => [
+        styles.base,
+        isPrimary ? styles.primary : styles.quiet,
+        disabled ? styles.disabled : null,
+        pressed && !disabled ? styles.pressed : null,
+        style,
+      ]}
     >
-      <Animated.View style={[styles.base, isPrimary ? styles.primary : styles.quiet, animatedStyle]}>
-        <Text style={[styles.label, isPrimary ? styles.primaryLabel : styles.quietLabel]}>{label}</Text>
-      </Animated.View>
+      <Text style={[styles.label, isPrimary ? styles.primaryLabel : styles.quietLabel]}>{label}</Text>
     </Pressable>
   );
 }
@@ -79,6 +74,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
+  },
+  disabled: {
+    opacity: 0.46,
+  },
+  pressed: {
+    opacity: 0.82,
+    transform: [{ scale: 0.972 }],
   },
   label: {
     fontSize: typography.small,
