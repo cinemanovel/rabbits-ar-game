@@ -75,7 +75,13 @@ export default function SignInScreen() {
           <PrimaryButton
             disabled={isDisabled}
             label={isSubmitting ? 'Signing in' : 'Sign in'}
-            onPress={handleSignIn}
+            onPress={() => {
+              if (__DEV__) {
+                console.log('[auth:signin] handler invoked');
+              }
+
+              handleSignIn();
+            }}
           />
           <PrimaryLink href="/sign-up" label="Create account" variant="quiet" />
           <PrimaryLink href="/" label="Back to welcome" variant="quiet" />

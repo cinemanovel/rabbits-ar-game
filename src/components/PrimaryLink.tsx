@@ -15,6 +15,14 @@ export function PrimaryLink({ href, label, variant = 'primary', style }: Primary
   const isPrimary = variant === 'primary';
   const pressValue = useRef(new Animated.Value(0)).current;
 
+  const handlePressIn = () => {
+    if (__DEV__) {
+      console.log('[ui:link] press', { label, href });
+    }
+
+    setPressed(true);
+  };
+
   const setPressed = (pressed: boolean) => {
     Animated.timing(pressValue, {
       toValue: pressed ? 1 : 0,
@@ -41,7 +49,7 @@ export function PrimaryLink({ href, label, variant = 'primary', style }: Primary
   return (
     <Link href={href} asChild>
       <Pressable
-        onPressIn={() => setPressed(true)}
+        onPressIn={handlePressIn}
         onPressOut={() => setPressed(false)}
         style={style}
       >

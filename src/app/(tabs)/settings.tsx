@@ -25,6 +25,10 @@ export default function SettingsTab() {
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
+    if (__DEV__) {
+      console.log('[settings] sign out handler invoked');
+    }
+
     setError(null);
     setMessage(null);
     setIsSigningOut(true);
@@ -42,6 +46,10 @@ export default function SettingsTab() {
   };
 
   const handleResetOnboarding = async () => {
+    if (__DEV__) {
+      console.log('[settings] reset onboarding handler invoked');
+    }
+
     setError(null);
     setMessage(null);
 
