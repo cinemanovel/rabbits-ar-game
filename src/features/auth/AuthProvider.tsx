@@ -141,11 +141,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return error ? { error: formatAuthError(error.message) } : { session: data.session };
       },
       signUp: async (email, password) => {
+        const emailRedirectTo = getAuthCallbackUrl();
+
+        if (__DEV__) {
+          console.info('[auth] Supabase signup emailRedirectTo:', emailRedirectTo);
+        }
+
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
-            emailRedirectTo: getAuthCallbackUrl(),
+            emailRedirectTo,
           },
         });
 
