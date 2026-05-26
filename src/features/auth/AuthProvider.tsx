@@ -69,16 +69,48 @@ export function AuthProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     let isMounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
+    if (__DEV__) {
+      console.log('[auth:startup] getSession requested');
+    }
+
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (__DEV__) {
+        console.log('[auth:startup] getSession resolved', {
+          error: error?.message ?? null,
+          hasSession: Boolean(data.session),
+          userId: data.session?.user.id ?? null,
+          expiresAt: data.session?.expires_at ?? null,
+        });
+      }
+
       if (!isMounted) {
         return;
       }
 
       setSession(data.session);
       setIsLoading(false);
+    }).catch((error: unknown) => {
+      if (__DEV__) {
+        console.log('[auth:startup] getSession failed', {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+
+      if (isMounted) {
+        setIsLoading(false);
+      }
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (__DEV__) {
+        console.log('[auth:state] event', {
+          event,
+          hasSession: Boolean(nextSession),
+          userId: nextSession?.user.id ?? null,
+          expiresAt: nextSession?.expires_at ?? null,
+        });
+      }
+
       setSession(nextSession);
       setIsLoading(false);
     });
@@ -208,7 +240,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return error ? { error: formatAuthError(error.message) } : { session: data.session };
       },
       signOut: async () => {
+        if (__DEV__) {
+          console.log('[auth:provider] signOut invoked');
+        }
+
         const { error } = await supabase.auth.signOut();
+
+        if (__DEV__) {
+          console.log('[auth:provider] signOut response', {
+            error: error?.message ?? null,
+          });
+        }
 
         return error ? { error: formatAuthError(error.message) } : {};
       },

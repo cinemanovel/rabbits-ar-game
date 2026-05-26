@@ -1,4 +1,5 @@
 import { Redirect, Tabs } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet, Text } from 'react-native';
 
 import { AppScreen } from '@/components/AppScreen';
@@ -13,6 +14,28 @@ export default function TabsLayout() {
     isLoading: isProfileLoading,
     profile,
   } = usePlayerProfile(session?.user.id);
+
+  useEffect(() => {
+    if (__DEV__) {
+      console.log('[route:tabs] decision state', {
+        isAuthLoading: isLoading,
+        isProfileLoading,
+        hasSession: Boolean(session),
+        hasProfile: Boolean(profile),
+        onboardingCompleted: profile?.onboarding_completed ?? null,
+        profileError,
+        target: isLoading || isProfileLoading
+          ? 'loading'
+          : !session
+            ? '/sign-in'
+            : profileError
+              ? 'profile-error'
+              : !profile || !profile.onboarding_completed
+                ? '/onboarding'
+                : 'tabs',
+      });
+    }
+  }, [isLoading, isProfileLoading, profile, profileError, session]);
 
   if (isLoading || isProfileLoading) {
     return (

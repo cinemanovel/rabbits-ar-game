@@ -1,5 +1,5 @@
 import { Redirect, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { AppScreen } from '@/components/AppScreen';
@@ -16,6 +16,24 @@ export default function SignUpScreen() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (__DEV__) {
+      console.log('[route:sign-up] decision state', {
+        isAuthLoading,
+        hasSession: Boolean(session),
+        target: isAuthLoading ? 'loading' : session ? '/home' : 'sign-up',
+      });
+    }
+  }, [isAuthLoading, session]);
+
+  if (isAuthLoading) {
+    return (
+      <AppScreen eyebrow="Access" title="Checking session" description="Verifying local session state.">
+        <Text style={styles.loadingText}>Hold for signal.</Text>
+      </AppScreen>
+    );
+  }
 
   if (session) {
     return <Redirect href="/home" />;
@@ -182,5 +200,10 @@ const styles = StyleSheet.create({
     color: colors.signal,
     fontSize: typography.small,
     lineHeight: 21,
+  },
+  loadingText: {
+    color: colors.textMuted,
+    fontSize: typography.body,
+    lineHeight: 24,
   },
 });

@@ -1,10 +1,37 @@
+import { Redirect } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { AppScreen } from '@/components/AppScreen';
 import { PrimaryLink } from '@/components/PrimaryLink';
+import { useAuth } from '@/features/auth/AuthProvider';
 import { colors, spacing, typography } from '@/theme';
 
 export default function WelcomeScreen() {
+  const { isLoading, session } = useAuth();
+
+  useEffect(() => {
+    if (__DEV__) {
+      console.log('[route:index] decision state', {
+        isLoading,
+        hasSession: Boolean(session),
+        target: isLoading ? 'loading' : session ? '/home' : 'welcome',
+      });
+    }
+  }, [isLoading, session]);
+
+  if (isLoading) {
+    return (
+      <AppScreen eyebrow="Access" title="Checking session" description="Verifying local session state.">
+        <Text style={styles.loadingText}>Hold for signal.</Text>
+      </AppScreen>
+    );
+  }
+
+  if (session) {
+    return <Redirect href="/home" />;
+  }
+
   return (
     <AppScreen
       eyebrow="Field file 000"
@@ -72,5 +99,10 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: spacing.md,
+  },
+  loadingText: {
+    color: colors.textMuted,
+    fontSize: typography.body,
+    lineHeight: 24,
   },
 });
