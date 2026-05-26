@@ -109,14 +109,38 @@ export function AuthProvider({ children }: PropsWithChildren) {
       user: session?.user ?? null,
       isLoading,
       completeAuthCallback: async (url) => {
+        if (__DEV__) {
+          console.log('[auth:callback] handling URL:', url);
+        }
+
         const { accessToken, code, errorCode, errorDescription, refreshToken } = getAuthCallbackParams(url);
 
+        if (__DEV__) {
+          console.log('[auth:callback] parsed params', {
+            hasAccessToken: Boolean(accessToken),
+            hasCode: Boolean(code),
+            hasRefreshToken: Boolean(refreshToken),
+            errorCode: errorCode ?? null,
+          });
+        }
+
         if (errorCode) {
+          if (__DEV__) {
+            console.log('[auth:callback] provider returned error:', errorDescription ?? errorCode);
+          }
+
           return { error: formatAuthError(errorDescription ?? errorCode) };
         }
 
         if (code) {
           const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+          if (__DEV__) {
+            console.log('[auth:callback] exchangeCodeForSession response', {
+              error: error?.message ?? null,
+              hasSession: Boolean(data.session),
+            });
+          }
 
           return error ? { error: formatAuthError(error.message) } : { session: data.session };
         }
@@ -127,7 +151,18 @@ export function AuthProvider({ children }: PropsWithChildren) {
             refresh_token: refreshToken,
           });
 
+          if (__DEV__) {
+            console.log('[auth:callback] setSession response', {
+              error: error?.message ?? null,
+              hasSession: Boolean(data.session),
+            });
+          }
+
           return error ? { error: formatAuthError(error.message) } : { session: data.session };
+        }
+
+        if (__DEV__) {
+          console.log('[auth:callback] no session params found');
         }
 
         return { error: 'No Supabase auth session was found in the callback URL.' };

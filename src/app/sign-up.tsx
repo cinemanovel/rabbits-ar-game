@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } fro
 import { AppScreen } from '@/components/AppScreen';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { PrimaryLink } from '@/components/PrimaryLink';
-import { getAuthCallbackUrl, useAuth } from '@/features/auth/AuthProvider';
+import { useAuth } from '@/features/auth/AuthProvider';
 import { colors, spacing, typography } from '@/theme';
 
 export default function SignUpScreen() {
@@ -52,11 +52,6 @@ export default function SignUpScreen() {
 
     if (__DEV__) {
       console.log('[auth:signup] validation passed');
-      console.log('[auth:signup] signUp invocation skipped for navigation audit');
-      console.log('[auth:signup] would use emailRedirectTo:', getAuthCallbackUrl());
-      console.log('[auth:signup] audit mode: skipping Supabase signUp call');
-      setMessage('Audit mode: Create Account press reached the sign-up handler.');
-      return;
     }
 
     setIsSubmitting(true);
