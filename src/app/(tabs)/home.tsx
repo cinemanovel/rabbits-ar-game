@@ -1,22 +1,38 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { AppScreen } from '@/components/AppScreen';
+import { useAuth } from '@/features/auth/AuthProvider';
+import { useActiveSignal } from '@/features/signal/useActiveSignal';
 import { colors, spacing, typography } from '@/theme';
 
 export default function HomeTab() {
+  const { user } = useAuth();
+  const { error, isLoading, signal } = useActiveSignal(user?.id);
+
+  const heroTitle = isLoading ? 'Checking receiver' : signal ? signal.title : 'Dormant signal';
+  const heroCopy = isLoading
+    ? 'Verifying the line.'
+    : signal
+      ? signal.body
+      : 'The shell is ready for the first chapter, but no live mystery systems are active.';
+
   return (
     <AppScreen
       eyebrow="Signal"
       title="Home"
-      description="The receiver is awake. Nothing has been transmitted yet."
+      description={
+        signal
+          ? 'The receiver is awake. A transmission is on the line.'
+          : 'The receiver is awake. Nothing has been transmitted yet.'
+      }
     >
       <View style={styles.heroCard}>
         <View style={styles.heroHeader}>
           <Text style={styles.meta}>Receiver</Text>
-          <View style={styles.statusDot} />
+          <View style={[styles.statusDot, signal ? styles.statusDotLive : null]} />
         </View>
-        <Text style={styles.heroTitle}>Dormant signal</Text>
-        <Text style={styles.heroCopy}>The shell is ready for the first chapter, but no live mystery systems are active.</Text>
+        <Text style={styles.heroTitle}>{heroTitle}</Text>
+        <Text style={styles.heroCopy}>{error ?? heroCopy}</Text>
       </View>
 
       <View style={styles.row}>
@@ -58,6 +74,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: colors.signal,
     opacity: 0.72,
+  },
+  statusDotLive: {
+    opacity: 1,
   },
   heroTitle: {
     color: colors.text,

@@ -44,6 +44,56 @@ export type Database = {
           },
         ];
       };
+      signals: {
+        Row: {
+          id: string;
+          player_id: string | null;
+          title: string;
+          body: string;
+          signal_type: string;
+          status: string;
+          sort_order: number;
+          available_at: string;
+          published_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          player_id?: string | null;
+          title: string;
+          body: string;
+          signal_type?: string;
+          status?: string;
+          sort_order?: number;
+          available_at?: string;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          player_id?: string | null;
+          title?: string;
+          body?: string;
+          signal_type?: string;
+          status?: string;
+          sort_order?: number;
+          available_at?: string;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'signals_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
