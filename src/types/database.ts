@@ -11,6 +11,9 @@ export type Database = {
           bio: string;
           avatar_placeholder: string;
           onboarding_completed: boolean;
+          case_number: string;
+          tier: string;
+          region: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -21,6 +24,9 @@ export type Database = {
           bio?: string;
           avatar_placeholder?: string;
           onboarding_completed?: boolean;
+          case_number?: string;
+          tier?: string;
+          region?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -31,6 +37,9 @@ export type Database = {
           bio?: string;
           avatar_placeholder?: string;
           onboarding_completed?: boolean;
+          case_number?: string;
+          tier?: string;
+          region?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -40,6 +49,44 @@ export type Database = {
             columns: ['id'];
             isOneToOne: true;
             referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      field_reports: {
+        Row: {
+          id: string;
+          profile_id: string;
+          title: string | null;
+          body: string;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          profile_id: string;
+          title?: string | null;
+          body: string;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          profile_id?: string;
+          title?: string | null;
+          body?: string;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'field_reports_profile_id_fkey';
+            columns: ['profile_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -95,7 +142,19 @@ export type Database = {
         ];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      the_index: {
+        Row: {
+          case_number: string;
+          display_name: string;
+          handle: string;
+          tier: string;
+          region: string | null;
+          last_active_at: string;
+        };
+        Relationships: [];
+      };
+    };
     Functions: Record<string, never>;
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

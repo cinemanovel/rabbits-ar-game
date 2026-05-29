@@ -2,12 +2,14 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { AppScreen } from '@/components/AppScreen';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { usePlayerProfile } from '@/features/profile/usePlayerProfile';
 import { useActiveSignal } from '@/features/signal/useActiveSignal';
 import { colors, spacing, typography } from '@/theme';
 
 export default function HomeTab() {
   const { user } = useAuth();
   const { error, isLoading, signal } = useActiveSignal(user?.id);
+  const { isLoading: isProfileLoading, profile } = usePlayerProfile(user?.id);
 
   const heroTitle = isLoading ? 'Checking receiver' : signal ? signal.title : 'Dormant signal';
   const heroCopy = isLoading
@@ -44,10 +46,12 @@ export default function HomeTab() {
       </View>
       <View style={styles.row}>
         <View>
-          <Text style={styles.meta}>Chapter</Text>
-          <Text style={styles.detail}>Awaiting first file</Text>
+          <Text style={styles.meta}>Case file</Text>
+          <Text style={styles.detail}>{profile?.tier ?? 'Unclassified'}</Text>
         </View>
-        <Text style={styles.value}>--</Text>
+        <Text style={styles.value}>
+          {isProfileLoading ? '--' : profile?.case_number ?? '--'}
+        </Text>
       </View>
       <Text style={styles.note}>No clues, community systems, or game logic are active yet.</Text>
     </AppScreen>

@@ -80,6 +80,10 @@ export default function ProfileTab() {
             <View style={styles.identityCopy}>
               <Text style={styles.name}>{displayName || 'Unnamed participant'}</Text>
               <Text style={styles.status}>{handle ? `@${handle}` : 'Handle unclaimed'}</Text>
+              {profile?.case_number ? (
+                <Text style={styles.caseFile}>{profile.case_number}</Text>
+              ) : null}
+              {profile?.tier ? <Text style={styles.tier}>{profile.tier}</Text> : null}
             </View>
           </View>
 
@@ -201,6 +205,21 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     fontWeight: '700',
     letterSpacing: 1.7,
+    textTransform: 'uppercase',
+  },
+  caseFile: {
+    marginTop: spacing.xs,
+    color: colors.text,
+    fontSize: typography.caption,
+    fontWeight: '700',
+    letterSpacing: 1.4,
+    fontVariant: ['tabular-nums'],
+  },
+  tier: {
+    color: colors.signal,
+    fontSize: typography.micro,
+    fontWeight: '700',
+    letterSpacing: 2,
     textTransform: 'uppercase',
   },
   note: {

@@ -8,9 +8,16 @@ type AppScreenProps = PropsWithChildren<{
   eyebrow?: string;
   title: string;
   description?: string;
+  variant?: 'panel' | 'scroll';
 }>;
 
-export function AppScreen({ eyebrow, title, description, children }: AppScreenProps) {
+export function AppScreen({
+  eyebrow,
+  title,
+  description,
+  children,
+  variant = 'panel',
+}: AppScreenProps) {
   const reveal = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -48,10 +55,14 @@ export function AppScreen({ eyebrow, title, description, children }: AppScreenPr
           {description ? <Text style={styles.description}>{description}</Text> : null}
         </View>
 
-        <View style={styles.panel}>
-          <View style={styles.panelAccent} />
-          {children}
-        </View>
+        {variant === 'scroll' ? (
+          <View style={styles.scrollHost}>{children}</View>
+        ) : (
+          <View style={styles.panel}>
+            <View style={styles.panelAccent} />
+            {children}
+          </View>
+        )}
       </Animated.View>
     </SafeAreaView>
   );
@@ -132,6 +143,8 @@ const styles = StyleSheet.create({
     maxWidth: 340,
   },
   panel: {
+    flex: 1,
+    minHeight: 0,
     position: 'relative',
     gap: spacing.lg,
     padding: spacing.lg,
@@ -145,6 +158,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.24,
     shadowRadius: 30,
     elevation: 8,
+  },
+  scrollHost: {
+    flex: 1,
+    minHeight: 0,
   },
   panelAccent: {
     position: 'absolute',

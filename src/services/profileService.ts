@@ -34,6 +34,10 @@ function formatProfileError(message: string) {
     return 'That handle is already taken.';
   }
 
+  if (message.toLowerCase().includes('profiles_case_number_unique_idx')) {
+    return 'That case number is already assigned.';
+  }
+
   return message;
 }
 
