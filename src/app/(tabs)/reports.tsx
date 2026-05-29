@@ -127,6 +127,14 @@ export default function ReportsTab() {
           </View>
         </View>
 
+        {reports.length > 0 ? (
+          <View style={styles.traceCard}>
+            <Text style={styles.traceEyebrow}>004773 // TRACE REGISTERED</Text>
+            <Text style={styles.traceBody}>Your field report has been received.</Text>
+            <Text style={styles.traceBody}>A pattern has attached itself to this case.</Text>
+          </View>
+        ) : null}
+
         <View style={styles.reportsCard}>
           <Text style={styles.listLabel}>Submitted</Text>
           {isLoading && ownSubmittedReports.length === 0 ? (
@@ -208,6 +216,23 @@ const styles = StyleSheet.create({
     ...cardBase,
     marginTop: spacing.lg,
     gap: spacing.sm,
+  },
+  traceCard: {
+    ...cardBase,
+    marginTop: spacing.lg,
+    gap: spacing.xs,
+  },
+  traceEyebrow: {
+    color: colors.signal,
+    fontSize: typography.micro,
+    fontWeight: '700',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  traceBody: {
+    color: colors.textMuted,
+    fontSize: typography.small,
+    lineHeight: 22,
   },
   form: {
     gap: spacing.md,
