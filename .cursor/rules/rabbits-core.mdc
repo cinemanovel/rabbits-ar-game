@@ -1,0 +1,842 @@
+---
+
+description: Core engineering standards, workflow, and verification rules for RABBITS: THE SIGNAL
+alwaysApply: true
+-----------------
+
+# RABBITS: THE SIGNAL — Core Engineering Rules
+
+## Project Context
+
+* This is RABBITS: THE SIGNAL.
+* This is a React Native / Expo / Expo Router / TypeScript mobile game project.
+* Target platform for current development is iOS simulator through Expo Go.
+* Backend uses Supabase.
+* Email infrastructure uses Resend through Supabase SMTP.
+* The current repository is `rabbits-ar-game`.
+* The active branch is `dev`.
+* The local repo path is `/Users/terrancemiles/rabbits-ar-game`.
+* Full vision remains intact.
+* Full twenty-week season remains canonical.
+* Solo operator + advanced AI assistance is the production model.
+* Assets are encouraged, not cut.
+* Activation is sequenced.
+* Los Angeles is final Gate only.
+* The player's own city is the center of the game.
+* Preserve the full vision.
+* Build the full world.
+* Activate the proof first.
+
+## Current Product Doctrine
+
+* This is a game, not a generic productivity app.
+* The app should feel like a diegetic interface inside the RABBITS world.
+* The first priority is proving playable loops.
+* Prefer:
+
+  * Player action
+  * Persistent state change
+  * Game response
+* Do not spend time polishing lore if the mechanic is not yet proven.
+* Do not remove scope because something seems ambitious.
+* Do not argue that the project cannot be solo-operated.
+* Do not cut rabbit holes, assets, physical-world extensions, audio, or future Gates.
+* Do not make the design Los Angeles-centric except for the final Gate.
+* Build small proof layers that preserve the full season structure.
+
+## Source Of Truth
+
+* Source of truth is the code in this repo, not assumptions.
+* Read before you write.
+* The repository is the source of truth for:
+
+  * Routing
+  * Installed packages
+  * Existing components
+  * Theme tokens
+  * Naming patterns
+  * Data flow
+  * Screen structure
+* Do not assume architecture, routing, dependencies, filenames, framework APIs, or package versions.
+* Verify against the actual installed versions in this repo.
+* If code and simulator disagree, believe the simulator and investigate why.
+* If user screenshots disagree with your interpretation, believe the screenshots.
+
+## Before Writing Code
+
+When asked for a non-trivial change, first restate your understanding in 1-3 lines and name the files you expect to touch.
+
+Before coding, explicitly state:
+
+1. What visible user-facing result you are trying to produce.
+2. Which file or files you will edit.
+3. Which files you will not touch.
+4. Whether the change is UI-only, logic-only, dependency-related, database-related, or asset-related.
+5. How the change will be verified in the simulator.
+
+If the request is ambiguous, ask before coding.
+
+Never assume a package, API, or version from memory. Verify it exists in this repo by checking `package.json`, `package-lock.json`, and/or the existing imports before importing or calling it.
+
+When using a framework or library API, confirm against the version actually installed. If unsure, say so rather than guessing.
+
+## No Phantom Success
+
+Do not say a feature is done unless it is actually visible and usable in the simulator.
+
+Typecheck passing is not enough.
+
+A change is not complete just because:
+
+* The code was edited.
+* The code compiles.
+* The file contains the right text.
+* The intended button exists somewhere in JSX.
+* Metro rebuilt.
+* The agent believes it should work.
+
+A change is complete only when:
+
+* The intended UI is visible.
+* The intended control is reachable.
+* The intended interaction works.
+* The simulator shows the expected state.
+* The user can perform the intended action.
+
+If you cannot personally verify simulator behavior, say exactly what remains unverified.
+
+## Simulator Is The Truth
+
+The simulator is the truth.
+
+Before declaring success on UI or interaction work, verify the simulator.
+
+For every simulator-facing change, verify:
+
+* The correct screen loads.
+* The correct tab is active.
+* The changed content is visible.
+* Buttons are visible.
+* Buttons are tappable.
+* Pressing the button causes the intended result.
+* Navigation still works.
+* The tab bar does not cover critical content.
+* No major content is clipped.
+* If scrolling is expected, scrolling actually works.
+
+If the simulator still shows old UI:
+
+* Do not assume the wrong file was edited until routing has been verified.
+* Check route configuration.
+* Check the actual tab file.
+* Check whether Metro rebundled.
+* Check whether Expo Go is running a stale bundle.
+* Restart the simulator project if needed.
+* Kill stale Metro processes if needed.
+* Reopen the live Development Server entry in Expo Go, not stale Recently Opened entries.
+
+Do not continue feature work while the simulator is stale.
+
+## Expo / Metro Verification
+
+When a change does not appear in Expo Go:
+
+1. Confirm the correct file was edited.
+2. Confirm the route uses that file.
+3. Confirm Metro shows a fresh `iOS Bundled` line after the change.
+4. If not, restart Metro with a cleared cache.
+5. If Expo Go still shows stale UI, terminate and reopen Expo Go.
+6. Open the project from the live Development Server entry.
+7. Do not mistake stale Expo Go cache for missing code.
+8. Do not mistake rendered but clipped UI for missing code.
+
+Preferred clean restart command:
+
+```bash
+cd /Users/terrancemiles/rabbits-ar-game
+npx expo start --clear --ios
+```
+
+If port 8081 is stuck:
+
+```bash
+lsof -ti tcp:8081 | xargs kill -9
+```
+
+Then restart Expo.
+
+## UI Behavior Rules
+
+If the user asks for a button:
+
+* Create a real visible button.
+* The button must be visible in the intended screen.
+* The button must be reachable without hidden gestures unless explicitly requested.
+* The button must have an actual `onPress` behavior.
+* The button label must match the requested action.
+* The button must not be hidden below clipped content.
+* The button must not be hidden behind the tab bar.
+* Verify in simulator that the button is visible and tappable.
+
+If the user asks for audio:
+
+* There must be a visible control to play the audio.
+* The control must be reachable.
+* The control must trigger playback.
+* Use the actual bundled asset path.
+* Verify the audio dependency exists before importing.
+* Verify the audio file exists on disk.
+* Verify the simulator can tap the button.
+* If sound is not audible, distinguish between:
+
+  * Missing button
+  * Broken playback code
+  * Missing asset
+  * Simulator audio/silent-mode issue
+  * Bundle/cache issue
+* Do not claim audio works merely because `useAudioPlayer` or similar code exists.
+
+If the user asks for scroll:
+
+* Create a real scrollable container.
+* Verify it scrolls in the simulator.
+* Verify content below the fold is reachable.
+* Verify the last item clears the tab bar.
+* Do not say “scroll works” unless a user can actually drag and reveal content.
+* If scrolling does nothing, the layout is not fixed.
+
+If the user asks for something to be immediately visible:
+
+* Do not place it below the fold.
+* Do not require scrolling.
+* Do not bury the primary action inside a clipped card.
+* Put the primary action in the first visible area.
+
+If the user says “put the button right there”:
+
+* Place the button in the visible card area near the related text.
+* Shorten supporting copy if necessary.
+* Do not solve by adding scrolling unless the user explicitly accepts scrolling.
+
+## Layout And Clipping Rules
+
+Never assume content is visible because it exists in JSX.
+
+For every card or panel:
+
+* Check whether the parent container has fixed height.
+* Check whether the parent container uses `overflow: hidden`.
+* Check whether nested views are clipped.
+* Check whether the tab bar overlaps content.
+* Check whether a nested `ScrollView` is trapped inside a fixed-height parent.
+* Check whether the screen itself can scroll.
+
+If content is clipped:
+
+* Fix the parent layout.
+* Do not keep adding content inside the clipped area.
+* Do not call the feature complete.
+* Do not require the user to guess where the hidden control is.
+
+Primary interactions must be visible, not merely rendered.
+
+## Code & Structure
+
+* Match the patterns of the surrounding files.
+* Consistency beats personal preference.
+* Keep functions small and single-purpose.
+* Prefer early returns over deep nesting.
+* Name things for what they do, not how.
+* No abbreviations that aren't already in the codebase.
+* Put new code where similar code already lives.
+* Do not invent new folders without asking.
+* Separate concerns:
+
+  * Game logic
+  * Rendering
+  * Input
+  * State
+  * Persistence
+  * Audio
+  * Activation
+* No magic numbers. Pull tunable values such as sizes, timings, spacing, and thresholds into named constants or existing theme tokens.
+* Write self-documenting code.
+* Add comments only to explain why, never what.
+* Use existing theme tokens, spacing, colors, radii, typography, and component patterns when available.
+* Do not add one-off visual styles unless no suitable pattern exists.
+
+## Editing Behavior
+
+* Produce complete code.
+* No stubs.
+* No placeholder logic.
+* No `// rest of logic here`.
+* No TODO placeholders unless explicitly asked for a sketch.
+* For files over roughly 400 lines, prefer targeted edits over full rewrites.
+* Do not reformat code you were not asked to change.
+* Do not “clean up” unrelated code.
+* Keep diffs minimal.
+* If a change touches other files such as types, callers, tests, config, package manifests, or assets, list what else needs updating.
+* Do not silently move features to a different screen.
+* Do not silently change the UX requirement to something easier.
+* Do not silently substitute “scroll to find it” when the user asked for an immediately visible button.
+* Do not silently substitute text-only behavior when the user asked for audio.
+* Do not silently substitute a visual placeholder when the user asked for a working interaction.
+
+## Dependency Rules
+
+Before installing a package:
+
+1. Verify it does not already exist.
+2. Explain why it is needed.
+3. Name the package.
+4. Name expected files that will change.
+5. Use Expo-compatible installation when appropriate.
+6. Do not install alternatives without approval.
+7. Do not run broad package upgrades.
+8. Do not run `npm audit fix` or `npm audit fix --force` unless explicitly instructed.
+
+For Expo native modules, prefer:
+
+```bash
+npx expo install <package-name>
+```
+
+Do not use deprecated packages if the current Expo SDK has a preferred replacement.
+
+Do not import from memory. Verify the package API against the installed package or official docs when needed.
+
+## Audio Rules
+
+For bundled audio:
+
+* Asset must exist in the repo.
+* Prefer `assets/audio/...` for local audio files.
+* Use a stable `require(...)` path from the file that plays it.
+* Verify the path from the actual source file location.
+* Do not build recording, upload, streaming, or storage unless explicitly requested.
+* Do not add Supabase audio storage unless explicitly requested.
+* Audio playback must have:
+
+  * Visible play button
+  * Clear label
+  * Working `onPress`
+  * Replay behavior if tapped again
+  * No crash when navigating away
+* If audio plays but cannot be heard, investigate simulator/device audio mode separately.
+* Do not claim audio is working until the user can tap a visible control.
+
+## Routing Rules
+
+Before editing a screen:
+
+* Verify the route file.
+* Verify the tab layout.
+* Verify whether the visible tab maps to `home.tsx`, `index.tsx`, or another file.
+* Do not guess based on filename.
+* If a screen is not updating, verify routing before moving code.
+
+For this project:
+
+* Authenticated root redirects to `/home`.
+* Home tab is expected to be `src/app/(tabs)/home.tsx`.
+* The Index tab is not the Home tab.
+* Do not move Home features into the Index tab unless explicitly requested.
+
+## State And Activation Rules
+
+Prefer activation-gated systems.
+
+Use the simplest state source that proves the mechanic:
+
+* Static local state for first proof
+* Existing persisted data for activation when available
+* Supabase only when persistence is required
+* New tables only when the feature needs durable multi-session state
+
+Do not add backend infrastructure for a first visual proof unless required.
+
+Do not create database tables unless the user explicitly approves the schema or asks for persistence.
+
+Do not create fake game state that conflicts with existing profile, report, signal, or index state.
+
+## Game Loop Rules
+
+Every feature should strengthen one of these loops:
+
+1. Player receives signal.
+2. Player acts.
+3. App records action.
+4. App responds.
+5. Player investigates further.
+
+Prefer building:
+
+* Dispatches
+* Reports
+* Signals
+* Index entries
+* Case file changes
+* Field observations
+* Audio transmissions
+* Activation gates
+* Real-world clue hooks
+
+Avoid building:
+
+* Decorative screens with no interaction
+* Lore walls with no state
+* Menus that do not advance the loop
+* Hidden interactions players cannot discover
+
+## RABBITS Canon Rules
+
+* 004773 is one major rabbit hole, not the whole game.
+* Solomon is reserved for `RBT-016-000001`.
+* Terry is `RBT-016-000002`.
+* The experience is asset-rich and activation-gated.
+* Full season remains target.
+* LA is the final Gate only.
+* The player's own city is the center.
+* Preserve ambiguity.
+* Prefer administrative, accidental, corrupted, procedural, or infrastructural weirdness over obvious fantasy exposition.
+* The game should feel like the system is noticing the player.
+* The player should feel they found something, not that they were handed a quest.
+
+## Copy And Narrative Rules
+
+* Text can be changed later.
+* Do not overfit placeholder copy.
+* Do not block mechanics on final lore polish.
+* Keep first-pass text concise and functional.
+* For early proof layers, copy should support the mechanic.
+* Avoid over-explaining 004773.
+* Avoid saying too much too early.
+* Prefer “forbidden file,” “case record,” “trace,” “receiver,” “line,” “dispatch,” “sync,” and “access restriction” language when appropriate.
+* Do not add large lore dumps to small UI cards.
+* If audio carries the full message, the visual card can be short.
+
+## Safety
+
+* Never edit or delete `.env`, `.env.local`, secrets, credentials, build credentials, or production config without explicit approval.
+* Never edit or delete config/env/build files without explicitly flagging it first.
+* Never commit on the user's behalf without being told to commit.
+* Never push on the user's behalf without being told to push.
+* Never run destructive git commands unless explicitly instructed.
+* Never discard changes unless explicitly instructed.
+* Never overwrite existing files without confirmation.
+* If you spot a bug or security issue outside the current task, stop and tell the user. Do not silently fix it.
+* If a package install changes `package.json` or `package-lock.json`, call it out.
+* If app config changes, call it out.
+* If a migration is needed, call it out before writing it.
+
+## Git Workflow
+
+Before changes:
+
+* Check current branch.
+* Check working tree state if relevant.
+
+After changes:
+
+* Run typecheck.
+* Report changed files.
+* Do not commit unless instructed.
+* Do not push unless instructed.
+
+Useful commands:
+
+```bash
+git status
+git log --oneline -3
+npm run typecheck
+```
+
+Commit only after simulator verification.
+
+## Quality Bar
+
+After a series of changes, run the typechecker/linter mentally and actually run the available project check when possible.
+
+For this project, use:
+
+```bash
+npm run typecheck
+```
+
+"No change needed" is a valid and welcome answer when true.
+
+Do not invent work.
+
+Prefer the simplest solution that works.
+
+Flag a more robust alternative if the tradeoff matters.
+
+## Commands
+
+Project path:
+
+```bash
+cd /Users/terrancemiles/rabbits-ar-game
+```
+
+Run/dev:
+
+```bash
+npx expo start --clear --ios
+```
+
+Typecheck:
+
+```bash
+npm run typecheck
+```
+
+Install Expo-compatible package:
+
+```bash
+npx expo install <package-name>
+```
+
+Inspect current Git state:
+
+```bash
+git status
+git log --oneline -3
+```
+
+Kill stuck Metro port:
+
+```bash
+lsof -ti tcp:8081 | xargs kill -9
+```
+
+## Required Completion Report
+
+After making changes, report:
+
+1. Files changed.
+2. What visible UI changed.
+3. What behavior changed.
+4. What was intentionally not changed.
+5. Typecheck result.
+6. Simulator verification result.
+7. Any remaining uncertainty.
+
+Do not say “done” if simulator verification has not happened.
+
+Use clear language:
+
+* “Implemented and typecheck passes, but simulator verification is still needed.”
+* “Visible in simulator and interaction verified.”
+* “Code is present, but the simulator is still showing stale UI.”
+* “The button exists in code but is not visible; layout must be fixed.”
+* “Audio dependency is installed, but playback is not verified.”
+* “Audio button is visible and playback is verified.”
+
+## Hard Rule
+
+Do not optimize for appearing finished.
+
+Optimize for the user being able to use the feature.
+
+## Runtime Verification Rules
+
+Before reporting simulator results:
+
+Verify the runtime is actually connected.
+
+Checklist:
+
+1. Metro is running.
+2. Metro shows no fatal startup errors.
+3. Metro has produced a fresh bundle after the latest code change.
+4. Expo Go is connected to the currently running Metro server.
+5. The simulator is running the latest bundle.
+6. The visible screen matches the edited source.
+7. Route logs appear after the latest bundle load.
+8. The user is not viewing a stale Expo Go session.
+
+Never claim simulator verification unless all of the above are true.
+
+If Metro was restarted:
+
+* Assume Expo Go may still be running stale JavaScript.
+* Reconnect Expo Go to the live Development Server.
+* Verify a fresh bundle was downloaded.
+
+If the simulator does not match the edited source:
+
+Do not continue feature work.
+
+Instead determine whether the problem is:
+
+* stale bundle
+* wrong route
+* wrong file
+* clipping/layout issue
+* runtime error
+* caching issue
+
+before making further code changes.
+
+A feature is not verified merely because:
+
+* Typecheck passes.
+* The code exists.
+* Metro is running.
+
+A feature is verified only when:
+
+* The edited UI is visible in the simulator.
+* The intended interaction can be performed.
+* The result of the interaction is observable.
+
+## Stale Bundle Prevention
+
+Before making additional code changes to fix a simulator issue:
+
+1. Confirm Metro has produced a fresh bundle after the latest code change.
+2. Confirm Expo Go is connected to the current Development Server.
+3. Confirm the simulator is displaying the latest bundle.
+4. Confirm the visible UI matches the edited source.
+
+If any of the above are unverified:
+
+* Stop.
+* Verify runtime state.
+* Do not write additional code.
+
+Do not write additional fixes for behavior that may be caused by a stale bundle.
+
+## Interaction Verification Rules
+
+If a feature adds:
+
+* a button
+* audio
+* navigation
+* scrolling
+* a modal
+* a form
+* a toggle
+* a gesture
+* a state change
+
+the interaction must be tested end-to-end.
+
+Examples:
+
+Button:
+
+* visible
+* tappable
+* performs action
+
+Audio:
+
+* visible control
+* tappable control
+* audible playback
+
+Scroll:
+
+* content reachable
+* drag gesture works
+
+Navigation:
+
+* destination screen loads
+
+Form:
+
+* submission succeeds
+* resulting state is visible
+
+Toggle:
+
+* state visibly changes
+* state persists if intended
+
+Do not report success based solely on code inspection.
+
+## Visibility Rules
+
+If the user asks for:
+
+* a button
+* a play control
+* a call-to-action
+* an interaction
+
+it must be immediately visible unless explicitly instructed otherwise.
+
+Do not hide primary interactions:
+
+* below the fold
+* inside clipped containers
+* behind overflow-hidden layouts
+* behind secondary navigation
+* behind hidden gestures
+
+If the user says:
+
+* "put the button right there"
+* "make it visible"
+* "don't make me scroll"
+
+then prioritize visibility over architectural elegance.
+
+Do not solve a visibility problem by adding scrolling unless the user explicitly accepts scrolling.
+
+## Layout Verification Rules
+
+Before declaring a layout complete:
+
+Verify:
+
+* content is not clipped
+* content is not hidden behind the tab bar
+* content is reachable
+* content is readable
+* content is not obscured by safe-area issues
+* content is not rendered outside the visible viewport
+
+If content exists in JSX but cannot be reached by the user:
+
+The feature is not complete.
+
+If a button exists in code but cannot be tapped:
+
+The feature is not complete.
+
+If audio exists but there is no visible control:
+
+The feature is not complete.
+
+## Terminal Instructions Rules
+
+Whenever terminal interaction is required:
+
+Explicitly tell the user:
+
+* whether to leave the terminal running
+* whether to press Ctrl-C
+* when to press Ctrl-C
+* when not to press Ctrl-C
+
+Never assume the user knows whether a process should remain running.
+
+Examples:
+
+"Leave this terminal running."
+
+"Do not press Ctrl-C."
+
+"Press Ctrl-C once and wait for the normal prompt."
+
+"After the prompt returns, run the next command."
+
+## Simulator Instructions Rules
+
+Whenever simulator interaction is required:
+
+Explicitly tell the user whether they should:
+
+* do nothing
+* reload the app
+* swipe up and quit Expo Go
+* reopen Expo Go
+* reconnect to the Development Server
+* restart the simulator
+
+Never assume the user knows which runtime component needs restarting.
+
+Always distinguish between:
+
+* Metro issue
+* Expo Go issue
+* simulator issue
+* stale bundle issue
+* code issue
+
+## Completion Reporting Rules
+
+Every implementation report must end with:
+
+Files Changed:
+
+* list files
+
+Typecheck:
+
+* pass/fail
+
+Simulator Verification:
+
+* verified
+  or
+* not yet verified
+
+Remaining Uncertainty:
+
+* none
+  or
+* explicit list
+
+Never use words such as:
+
+* done
+* complete
+* fixed
+* working
+
+unless simulator verification has actually occurred.
+
+## Hard Rule
+
+Do not optimize for appearing finished.
+
+Optimize for the user being able to use the feature.
+
+The simulator is the truth.
+
+The user experience is the truth.
+
+Visible behavior is more important than code existence.
+
+Work continuously until the task is complete.
+
+Do not stop for intermediate status updates.
+
+Do not ask for confirmation between steps.
+
+If a command, edit, typecheck, simulator verification, or reload is required, perform it automatically.
+
+Only stop if:
+- you need elevated permissions
+- you encounter an actual blocker
+- a rule prevents you from proceeding
+- the task is complete
+
+## Terminal Command Rules
+
+When giving terminal instructions:
+
+Explicitly distinguish between:
+
+- Press Enter/Return to execute
+- Leave process running
+- Press Ctrl-C to stop process
+
+Do not assume the user knows which applies.
+
+Example:
+
+Run:
+npx expo start --clear --ios
+
+Press Enter.
+
+Leave the terminal running afterward.
+Do not press Ctrl-C.
