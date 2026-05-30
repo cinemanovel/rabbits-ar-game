@@ -1,20 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { AppScreen } from '@/components/AppScreen';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useFieldReports } from '@/features/fieldReports/useFieldReports';
 import { colors, radii, spacing, typography } from '@/theme';
-
-const TAB_BAR_CLEARANCE = 120;
 
 function formatReportDate(createdAt: string) {
   const timestamp = new Date(createdAt);
@@ -81,110 +72,101 @@ export default function ReportsTab() {
       description="Transmit observations back to the line."
       variant="scroll"
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        style={styles.scroll}
-      >
-        <View style={styles.composeCard}>
-          <View style={styles.form}>
-            <View style={styles.field}>
-              <Text style={styles.label}>Title</Text>
-              <TextInput
-                maxLength={120}
-                onChangeText={setTitle}
-                placeholder="Optional subject line"
-                placeholderTextColor={colors.textFaint}
-                style={styles.input}
-                value={title}
-              />
-              <Text style={styles.helper}>Optional. 1-120 characters.</Text>
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>Report</Text>
-              <TextInput
-                maxLength={2000}
-                multiline
-                onChangeText={setBody}
-                placeholder="Record what you observed."
-                placeholderTextColor={colors.textFaint}
-                style={[styles.input, styles.bodyInput]}
-                value={body}
-              />
-              <Text style={styles.helper}>{body.length}/2000</Text>
-            </View>
-
-            {submitMessage ? <Text style={styles.success}>{submitMessage}</Text> : null}
-            {!isLoading && error ? <Text style={styles.error}>{error}</Text> : null}
-
-            <PrimaryButton
-              disabled={isSubmitting}
-              label={isSubmitting ? 'Submitting' : 'Submit report'}
-              onPress={handleSubmit}
+      <View style={styles.composeCard}>
+        <View style={styles.form}>
+          <View style={styles.field}>
+            <Text style={styles.label}>Title</Text>
+            <TextInput
+              maxLength={120}
+              onChangeText={setTitle}
+              placeholder="Optional subject line"
+              placeholderTextColor={colors.textFaint}
+              style={styles.input}
+              value={title}
             />
+            <Text style={styles.helper}>Optional. 1-120 characters.</Text>
           </View>
-        </View>
 
-        {reports.length > 0 ? (
-          <View style={styles.traceCard}>
-            <Text style={styles.traceEyebrow}>004773 // TRACE REGISTERED</Text>
-            <Text style={styles.traceBody}>Your field report has been received.</Text>
-            <Text style={styles.traceBody}>A pattern has attached itself to this case.</Text>
+          <View style={styles.field}>
+            <Text style={styles.label}>Report</Text>
+            <TextInput
+              maxLength={2000}
+              multiline
+              onChangeText={setBody}
+              placeholder="Record what you observed."
+              placeholderTextColor={colors.textFaint}
+              style={[styles.input, styles.bodyInput]}
+              value={body}
+            />
+            <Text style={styles.helper}>{body.length}/2000</Text>
           </View>
+
+          {submitMessage ? <Text style={styles.success}>{submitMessage}</Text> : null}
+          {!isLoading && error ? <Text style={styles.error}>{error}</Text> : null}
+
+          <PrimaryButton
+            disabled={isSubmitting}
+            label={isSubmitting ? 'Submitting' : 'Submit report'}
+            onPress={handleSubmit}
+          />
+        </View>
+      </View>
+
+      {reports.length > 0 ? (
+        <View style={styles.traceCard}>
+          <Text style={styles.traceEyebrow}>004773 // TRACE REGISTERED</Text>
+          <Text style={styles.traceBody}>Your field report has been received.</Text>
+          <Text style={styles.traceBody}>A pattern has attached itself to this case.</Text>
+        </View>
+      ) : null}
+
+      <View style={styles.reportsCard}>
+        <Text style={styles.listLabel}>Submitted</Text>
+        {isLoading && ownSubmittedReports.length === 0 ? (
+          <Text style={styles.stateCopy}>Scanning reports.</Text>
+        ) : null}
+        {!isLoading && error && ownSubmittedReports.length === 0 ? (
+          <Text style={styles.stateCopy}>{error}</Text>
+        ) : null}
+        {!isLoading && !error && ownSubmittedReports.length === 0 ? (
+          <Text style={styles.stateCopy}>No field reports submitted.</Text>
         ) : null}
 
-        <View style={styles.reportsCard}>
-          <Text style={styles.listLabel}>Submitted</Text>
-          {isLoading && ownSubmittedReports.length === 0 ? (
-            <Text style={styles.stateCopy}>Scanning reports.</Text>
-          ) : null}
-          {!isLoading && error && ownSubmittedReports.length === 0 ? (
-            <Text style={styles.stateCopy}>{error}</Text>
-          ) : null}
-          {!isLoading && !error && ownSubmittedReports.length === 0 ? (
-            <Text style={styles.stateCopy}>No field reports submitted.</Text>
-          ) : null}
+        {ownSubmittedReports.map((report) => {
+          const isExpanded = !!expandedReportIds[report.id];
+          const reportTitle = report.title?.trim() ?? '';
 
-          {ownSubmittedReports.map((report) => {
-            const isExpanded = !!expandedReportIds[report.id];
-            const reportTitle = report.title?.trim() ?? '';
-
-            return (
-              <View key={report.id} style={styles.row}>
-                <View style={styles.rowMain}>
-                  {reportTitle.length > 0 ? (
-                    <Text style={styles.headline}>{reportTitle}</Text>
-                  ) : null}
-                  {isExpanded ? (
-                    <Text style={styles.reportBody}>{report.body}</Text>
-                  ) : null}
-                </View>
-                <View style={styles.rowAside}>
-                  <Text style={styles.asideLabel}>Logged</Text>
-                  <Text style={styles.asideValue}>{formatReportDate(report.created_at)}</Text>
-                  <Pressable
-                    hitSlop={8}
-                    onPress={() => {
-                      setExpandedReportIds((current) => {
-                        const nextExpanded = !current[report.id];
-                        return {
-                          ...current,
-                          [report.id]: nextExpanded,
-                        };
-                      });
-                    }}
-                    style={({ pressed }) => [pressed ? styles.rowPressed : null]}
-                  >
-                    <Text style={styles.reportActionText}>{isExpanded ? 'CLOSE' : 'VIEW'}</Text>
-                  </Pressable>
-                </View>
+          return (
+            <View key={report.id} style={styles.row}>
+              <View style={styles.rowMain}>
+                {reportTitle.length > 0 ? (
+                  <Text style={styles.headline}>{reportTitle}</Text>
+                ) : null}
+                {isExpanded ? <Text style={styles.reportBody}>{report.body}</Text> : null}
               </View>
-            );
-          })}
-        </View>
-      </ScrollView>
+              <View style={styles.rowAside}>
+                <Text style={styles.asideLabel}>Logged</Text>
+                <Text style={styles.asideValue}>{formatReportDate(report.created_at)}</Text>
+                <Pressable
+                  hitSlop={8}
+                  onPress={() => {
+                    setExpandedReportIds((current) => {
+                      const nextExpanded = !current[report.id];
+                      return {
+                        ...current,
+                        [report.id]: nextExpanded,
+                      };
+                    });
+                  }}
+                  style={({ pressed }) => [pressed ? styles.rowPressed : null]}
+                >
+                  <Text style={styles.reportActionText}>{isExpanded ? 'CLOSE' : 'VIEW'}</Text>
+                </Pressable>
+              </View>
+            </View>
+          );
+        })}
+      </View>
     </AppScreen>
   );
 }
@@ -203,12 +185,6 @@ const cardBase = {
 } as const;
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: TAB_BAR_CLEARANCE + spacing.xl,
-  },
   composeCard: {
     ...cardBase,
   },

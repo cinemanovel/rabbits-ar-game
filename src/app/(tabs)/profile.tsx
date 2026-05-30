@@ -8,6 +8,16 @@ import { useAuth } from '@/features/auth/AuthProvider';
 import { usePlayerProfile } from '@/features/profile/usePlayerProfile';
 import { colors, radii, spacing, typography } from '@/theme';
 
+function LockedField({ value }: { value: string }) {
+  return (
+    <View style={[styles.input, styles.inputLocked, styles.lockedField]}>
+      <Text numberOfLines={1} style={styles.lockedValue}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
 export default function ProfileTab() {
   const router = useRouter();
   const { signOut, user } = useAuth();
@@ -64,6 +74,7 @@ export default function ProfileTab() {
   };
 
   const avatarInitial = (displayName || user?.email || 'R').charAt(0).toUpperCase();
+  const isIdentityLocked = Boolean(profile);
 
   return (
     <AppScreen
@@ -91,29 +102,45 @@ export default function ProfileTab() {
 
           <View style={styles.field}>
             <Text style={styles.label}>Display name</Text>
-            <TextInput
-              maxLength={48}
-              onChangeText={setDisplayName}
-              placeholder="Display name"
-              placeholderTextColor={colors.textFaint}
-              style={styles.input}
-              value={displayName}
-            />
+            {isIdentityLocked ? (
+              <>
+                <LockedField value={displayName} />
+                <Text style={styles.helper}>Locked after profile creation.</Text>
+              </>
+            ) : (
+              <TextInput
+                maxLength={48}
+                onChangeText={setDisplayName}
+                placeholder="Display name"
+                placeholderTextColor={colors.textFaint}
+                style={styles.input}
+                value={displayName}
+              />
+            )}
           </View>
 
           <View style={styles.field}>
             <Text style={styles.label}>Handle</Text>
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              maxLength={24}
-              onChangeText={(value) => setHandle(value.trim().toLowerCase())}
-              placeholder="username"
-              placeholderTextColor={colors.textFaint}
-              style={styles.input}
-              value={handle}
-            />
-            <Text style={styles.helper}>3-24 lowercase letters, numbers, or underscores.</Text>
+            {isIdentityLocked ? (
+              <>
+                <LockedField value={handle} />
+                <Text style={styles.helper}>Locked after profile creation.</Text>
+              </>
+            ) : (
+              <>
+                <TextInput
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  maxLength={24}
+                  onChangeText={(value) => setHandle(value.trim().toLowerCase())}
+                  placeholder="username"
+                  placeholderTextColor={colors.textFaint}
+                  style={styles.input}
+                  value={handle}
+                />
+                <Text style={styles.helper}>3-24 lowercase letters, numbers, or underscores.</Text>
+              </>
+            )}
           </View>
 
           <View style={styles.field}>
@@ -251,6 +278,18 @@ const styles = StyleSheet.create({
     minHeight: 92,
     paddingTop: spacing.md,
     textAlignVertical: 'top',
+  },
+  inputLocked: {
+    borderColor: colors.borderSoft,
+    backgroundColor: colors.surfaceMuted,
+    color: colors.textMuted,
+  },
+  lockedField: {
+    justifyContent: 'center',
+  },
+  lockedValue: {
+    color: colors.textMuted,
+    fontSize: typography.body,
   },
   helper: {
     color: colors.textFaint,

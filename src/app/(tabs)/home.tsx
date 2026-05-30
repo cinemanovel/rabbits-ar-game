@@ -122,11 +122,8 @@ export default function HomeTab() {
           <Text style={styles.meta}>Case file</Text>
           <Text style={styles.detail}>{profile?.tier ?? 'Unclassified'}</Text>
         </View>
-        <Text style={styles.value}>
-          {isProfileLoading ? '--' : profile?.case_number ?? '--'}
-        </Text>
+        <Text style={styles.value}>{isProfileLoading ? '--' : profile?.case_number ?? '--'}</Text>
       </View>
-      <Text style={styles.note}>No clues, community systems, or game logic are active yet.</Text>
     </AppScreen>
   );
 }
@@ -206,8 +203,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.lg,
-    minHeight: 72,
-    paddingVertical: spacing.md,
+    minHeight: 56,
+    paddingVertical: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderSoft,
   },
@@ -232,7 +229,6 @@ const styles = StyleSheet.create({
   },
   dispatchCard: {
     gap: spacing.sm,
-    marginTop: spacing.lg,
     padding: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
@@ -250,11 +246,5 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: typography.small,
     lineHeight: 22,
-  },
-  note: {
-    color: colors.textMuted,
-    fontSize: typography.small,
-    lineHeight: 22,
-    paddingTop: spacing.sm,
   },
 });

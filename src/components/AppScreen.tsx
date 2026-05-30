@@ -1,14 +1,16 @@
 import { PropsWithChildren, useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, motion, radii, spacing, typography } from '@/theme';
+
+const TAB_BAR_CLEARANCE = 120;
 
 type AppScreenProps = PropsWithChildren<{
   eyebrow?: string;
   title: string;
   description?: string;
-  variant?: 'panel' | 'scroll';
+  variant?: 'card' | 'scroll';
 }>;
 
 export function AppScreen({
@@ -16,7 +18,7 @@ export function AppScreen({
   title,
   description,
   children,
-  variant = 'panel',
+  variant = 'card',
 }: AppScreenProps) {
   const reveal = useRef(new Animated.Value(0)).current;
 
@@ -48,21 +50,21 @@ export function AppScreen({
         <View style={styles.signalLine} />
       </View>
 
-      <Animated.View style={[styles.container, contentStyle]}>
-        <View style={styles.header}>
-          {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
-          <Text style={styles.title}>{title}</Text>
-          {description ? <Text style={styles.description}>{description}</Text> : null}
-        </View>
-
-        {variant === 'scroll' ? (
-          <View style={styles.scrollHost}>{children}</View>
-        ) : (
-          <View style={styles.panel}>
-            <View style={styles.panelAccent} />
-            {children}
+      <Animated.View style={[styles.fill, contentStyle]}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          style={styles.scroll}
+        >
+          <View style={styles.header}>
+            {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
+            <Text style={styles.title}>{title}</Text>
+            {description ? <Text style={styles.description}>{description}</Text> : null}
           </View>
-        )}
+
+          {variant === 'scroll' ? children : <View style={styles.card}>{children}</View>}
+        </ScrollView>
       </Animated.View>
     </SafeAreaView>
   );
@@ -111,16 +113,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.borderSoft,
     opacity: 0.58,
   },
-  container: {
+  fill: {
     flex: 1,
-    justifyContent: 'space-between',
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xxxl,
-    paddingBottom: spacing.xl,
+    paddingTop: spacing.xxl,
+    paddingBottom: TAB_BAR_CLEARANCE + spacing.xl,
   },
   header: {
-    gap: spacing.sm,
+    gap: spacing.xs,
     maxWidth: 380,
+    marginBottom: spacing.xl,
   },
   eyebrow: {
     color: colors.signal,
@@ -142,13 +149,9 @@ const styles = StyleSheet.create({
     lineHeight: 29,
     maxWidth: 340,
   },
-  panel: {
-    flex: 1,
-    minHeight: 0,
-    position: 'relative',
+  card: {
     gap: spacing.lg,
     padding: spacing.lg,
-    overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radii.lg,
@@ -158,18 +161,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.24,
     shadowRadius: 30,
     elevation: 8,
-  },
-  scrollHost: {
-    flex: 1,
-    minHeight: 0,
-  },
-  panelAccent: {
-    position: 'absolute',
-    top: 0,
-    left: spacing.lg,
-    right: spacing.lg,
-    height: 1,
-    backgroundColor: colors.signal,
-    opacity: 0.34,
   },
 });
