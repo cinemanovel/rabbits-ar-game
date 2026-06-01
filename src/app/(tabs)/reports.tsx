@@ -5,6 +5,8 @@ import { AppScreen } from '@/components/AppScreen';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useFieldReports } from '@/features/fieldReports/useFieldReports';
+import { useFirstSection } from '@/features/firstSection/useFirstSection';
+import { usePlayerProfile } from '@/features/profile/usePlayerProfile';
 import { colors, radii, spacing, typography } from '@/theme';
 
 function formatReportDate(createdAt: string) {
@@ -17,14 +19,27 @@ function formatReportDate(createdAt: string) {
   return timestamp.toISOString().slice(0, 10);
 }
 
+function buildReportRef(caseNumber: string | null | undefined, sequence: number) {
+  const base = caseNumber ?? 'RBT-016-000000';
+  return `${base}-${String(sequence).padStart(3, '0')}`;
+}
+
 export default function ReportsTab() {
   const { user } = useAuth();
   const { error, isLoading, isSubmitting, reports, submit } = useFieldReports(user?.id);
+  const { profile } = usePlayerProfile(user?.id);
+  const { isLoaded: isFirstSectionLoaded, markTraceVisible } = useFirstSection(user?.id);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const [receiptRef, setReceiptRef] = useState<string | null>(null);
   const [expandedReportIds, setExpandedReportIds] = useState<Record<string, boolean>>({});
   const hasInitializedExpandedReportsRef = useRef(false);
+
+  useEffect(() => {
+    if (isFirstSectionLoaded && reports.length > 0) {
+      markTraceVisible();
+    }
+  }, [isFirstSectionLoaded, markTraceVisible, reports.length]);
 
   const ownSubmittedReports = useMemo(
     () => reports.filter((report) => report.profile_id === user?.id && report.status !== 'private'),
@@ -51,7 +66,9 @@ export default function ReportsTab() {
   }, [ownSubmittedReports]);
 
   const handleSubmit = async () => {
-    setSubmitMessage(null);
+    setReceiptRef(null);
+
+    const nextSequence = reports.length + 1;
 
     const didSubmit = await submit({
       title,
@@ -61,7 +78,7 @@ export default function ReportsTab() {
     if (didSubmit) {
       setTitle('');
       setBody('');
-      setSubmitMessage('Field report submitted.');
+      setReceiptRef(buildReportRef(profile?.case_number, nextSequence));
     }
   };
 
@@ -101,7 +118,12 @@ export default function ReportsTab() {
             <Text style={styles.helper}>{body.length}/2000</Text>
           </View>
 
-          {submitMessage ? <Text style={styles.success}>{submitMessage}</Text> : null}
+          {receiptRef ? (
+            <View style={styles.receipt}>
+              <Text style={styles.receiptWord}>NOTED</Text>
+              <Text style={styles.receiptRef}>REF {receiptRef}</Text>
+            </View>
+          ) : null}
           {!isLoading && error ? <Text style={styles.error}>{error}</Text> : null}
 
           <PrimaryButton
@@ -243,10 +265,22 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     lineHeight: 20,
   },
-  success: {
-    color: colors.accent,
-    fontSize: typography.small,
-    lineHeight: 21,
+  receipt: {
+    gap: spacing.xxs,
+    paddingVertical: spacing.sm,
+  },
+  receiptWord: {
+    color: colors.text,
+    fontSize: typography.subtitle,
+    fontWeight: '800',
+    letterSpacing: 4,
+  },
+  receiptRef: {
+    color: colors.signal,
+    fontSize: typography.caption,
+    fontWeight: '700',
+    letterSpacing: 1.4,
+    fontVariant: ['tabular-nums'],
   },
   error: {
     color: colors.signal,

@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { useFirstSection } from '@/features/firstSection/useFirstSection';
 import { usePlayerProfile } from '@/features/profile/usePlayerProfile';
 import { colors, spacing, typography } from '@/theme';
 
@@ -20,6 +21,7 @@ export default function SettingsTab() {
     profile,
     resetOnboarding,
   } = usePlayerProfile(user?.id);
+  const { reset: resetFirstSection } = useFirstSection(user?.id);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -43,6 +45,16 @@ export default function SettingsTab() {
     }
 
     router.replace('/');
+  };
+
+  const handleResetFirstSection = () => {
+    if (__DEV__) {
+      console.log('[settings] reset first section handler invoked');
+    }
+
+    setError(null);
+    resetFirstSection();
+    setMessage('First section reset. Replay from Dispatch 001.');
   };
 
   const handleResetOnboarding = async () => {
@@ -87,6 +99,12 @@ export default function SettingsTab() {
             disabled={isProfileLoading || isSaving || isSigningOut}
             label={isSaving ? 'Resetting' : 'Reset onboarding'}
             onPress={handleResetOnboarding}
+            variant="quiet"
+          />
+          <PrimaryButton
+            disabled={isSigningOut}
+            label="Reset first section"
+            onPress={handleResetFirstSection}
             variant="quiet"
           />
         </View>

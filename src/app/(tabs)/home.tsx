@@ -4,6 +4,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppScreen } from '@/components/AppScreen';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { FirstSectionSequence } from '@/features/firstSection/FirstSectionSequence';
+import { useFirstSection } from '@/features/firstSection/useFirstSection';
 import { usePlayerProfile } from '@/features/profile/usePlayerProfile';
 import { useActiveSignal } from '@/features/signal/useActiveSignal';
 import { colors, radii, spacing, typography } from '@/theme';
@@ -14,16 +16,30 @@ export default function HomeTab() {
   const { user } = useAuth();
   const { error, isLoading, signal } = useActiveSignal(user?.id);
   const { isLoading: isProfileLoading, profile } = usePlayerProfile(user?.id);
+  const firstSection = useFirstSection(user?.id);
   const dispatchPlayer = useAudioPlayer(dispatchAudioSource);
   const dispatchStatus = useAudioPlayerStatus(dispatchPlayer);
   const isDispatchPlaying = dispatchStatus.playing;
   const isDispatchPaused = !isDispatchPlaying && dispatchStatus.currentTime > 0;
 
+  const { isLoaded: isFirstSectionLoaded, markDispatchAvailable, markDispatchCompleted } =
+    firstSection;
+
+  useEffect(() => {
+    if (isFirstSectionLoaded) {
+      markDispatchAvailable();
+    }
+  }, [isFirstSectionLoaded, markDispatchAvailable]);
+
   useEffect(() => {
     if (dispatchStatus.didJustFinish) {
       dispatchPlayer.seekTo(0);
+
+      if (isFirstSectionLoaded) {
+        markDispatchCompleted();
+      }
     }
-  }, [dispatchStatus.didJustFinish, dispatchPlayer]);
+  }, [dispatchStatus.didJustFinish, dispatchPlayer, isFirstSectionLoaded, markDispatchCompleted]);
 
   const handlePlayDispatch = () => {
     if (isDispatchPlaying) {
@@ -116,6 +132,18 @@ export default function HomeTab() {
         <Text style={styles.dispatchBody}>Your account has been flagged for review.</Text>
         <Text style={styles.dispatchBody}>Access to file 004773 is restricted.</Text>
       </View>
+
+      {isFirstSectionLoaded ? (
+        <FirstSectionSequence
+          caseNumber={profile?.case_number ?? null}
+          onActivateRadiant={firstSection.activateRadiant}
+          onCloseSection={firstSection.closeFirstSection}
+          onOpenEmilySupportSite={firstSection.openEmilySupportSite}
+          onSubmitCorrection={firstSection.submitCorrection}
+          onSubmitEmilyReference={firstSection.submitEmilyReference}
+          state={firstSection.state}
+        />
+      ) : null}
 
       <View style={styles.row}>
         <View>
